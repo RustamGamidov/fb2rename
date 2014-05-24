@@ -147,6 +147,9 @@ parser.add_argument('fname', metavar='fb2_file_names', type=str, nargs='+',
 parser.add_argument('--format', '-f', dest='format', action='store',
                    default='%title%',
                    help='Format of the new name')
+parser.add_argument('--dry-run', '-d', dest='dryrun', action='store_true',
+                   default=False,
+                   help='Do not rename files. Just show new names.')
 args = parser.parse_args()
 
 errors = []
@@ -159,7 +162,8 @@ for fname in args.fname:
         errors.append(fname)
         continue
     print fname, ' => ', name
-    os.rename(fname, name.strip('\n '))
+    if not args.dryrun:
+        os.rename(fname, name.strip('\n '))
 
 
 print 'Errors: ', errors
