@@ -6,6 +6,7 @@ import glob
 import sys
 import fnmatch
 import argparse
+import string
 
 from lxml import etree
 
@@ -45,6 +46,12 @@ publish_tags = {
 
 format_patterns = ['author', 'title', 'date', 'seq_name', 'seq_number', 'genre']
 
+def validate_filename(filename):
+    forbidden = ['?', ':']
+    result = filename
+    for ch in forbidden:
+        result = result.replace(ch,'.')
+    return result
 
 def get_tag_path(_element, _path):
     xmlns = _element.nsmap[None]
@@ -142,15 +149,17 @@ parser.add_argument('--format', '-f', dest='format', action='store',
                    help='Format of the new name')
 args = parser.parse_args()
 
-err_count = 0
+errors = []
 for fname in args.fname:
     book = etree.parse(fname)
     try:
-        name = format_name(book.getroot(), args.format)
+        name = unicode(validate_filename(format_name(book.getroot(), args.format)) + '.fb2')
     except:
         print sys.exc_info()[1]
-        err_count += 1
+        errors.append(fname)
         continue
-    print name
+    print fname, ' => ', name
+    os.rename(fname, name.strip('\n '))
 
-print 'Errors: ', err_count
+
+print 'Errors: ', errors
