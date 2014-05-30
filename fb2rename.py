@@ -53,6 +53,14 @@ def validate_filename(filename):
         result = result.replace(ch,'.')
     return result
 
+
+def validate_tag(filename):
+    forbidden = ['\\', '/']
+    result = validate_filename(filename)
+    for ch in forbidden:
+        result = result.replace(ch,'.')
+    return result
+
 def get_tag_path(_element, _path):
     xmlns = _element.nsmap[None]
     tags = []
@@ -128,7 +136,7 @@ def get_cmd(_element, _cmd_parameter):
     if value is None:
         raise Exception("There's no " + _cmd_parameter)
         value = ''
-    return value.strip()
+    return validate_tag(value.strip())
 
 
 def format_name(_element, _format):
