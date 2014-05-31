@@ -47,8 +47,9 @@ publish_tags = {
 format_patterns = ['author', 'title', 'date', 'seq_name', 'seq_number', 'genre']
 
 def ensure_path_exists(path):
-    if not os.path.exists(path):
-        os.makedirs(path)
+    if path:
+        if not os.path.exists(path):
+            os.makedirs(path)
 
 
 def validate_filename(i_filename):
