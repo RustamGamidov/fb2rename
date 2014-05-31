@@ -55,10 +55,10 @@ def validate_filename(filename):
 
 
 def validate_tag(filename):
-    forbidden = ['\\', '/']
+    forbidden = ['\\', '/', '"']
     result = validate_filename(filename)
     for ch in forbidden:
-        result = result.replace(ch,'.')
+        result = result.replace(ch,'_')
     return result
 
 def get_tag_path(_element, _path):
