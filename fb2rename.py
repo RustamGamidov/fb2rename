@@ -46,6 +46,10 @@ publish_tags = {
 
 format_patterns = ['author', 'title', 'date', 'seq_name', 'seq_number', 'genre']
 
+def ensure_path_exists(path):
+    if not os.path.exists(path):
+        os.makedirs(path)
+
 def validate_filename(filename):
     forbidden = ['?', ':']
     result = filename
@@ -55,7 +59,7 @@ def validate_filename(filename):
 
 
 def validate_tag(filename):
-    forbidden = ['\\', '/', '"']
+    forbidden = ['\\', '/', '"', '-']
     result = validate_filename(filename)
     for ch in forbidden:
         result = result.replace(ch,'_')
@@ -169,9 +173,13 @@ for fname in args.fname:
         print sys.exc_info()[1]
         errors.append(fname)
         continue
+    name = name.strip('\n ')
     print fname, ' => ', name
     if not args.dryrun:
-        os.rename(fname, name.strip('\n '))
-
+        try:
+            ensure_path_exists(os.path.dirname(name))
+            os.rename(fname, name)
+        except:
+            errors.append(fname)
 
 print 'Errors: ', errors
