@@ -50,20 +50,24 @@ def ensure_path_exists(path):
     if not os.path.exists(path):
         os.makedirs(path)
 
-def validate_filename(filename):
+
+def validate_filename(i_filename):
     forbidden = ['?', ':']
-    result = filename
+    result = i_filename.strip()
     for ch in forbidden:
         result = result.replace(ch,'.')
     return result
 
 
-def validate_tag(filename):
-    forbidden = ['\\', '/', '"', '-']
-    result = validate_filename(filename)
+def validate_tag(i_tag):
+    forbidden = ['\\', '/', '"']
+    result = i_tag.strip()
+    result = validate_filename(result)
+    result = ' '.join(result.split())
     for ch in forbidden:
         result = result.replace(ch,'_')
     return result
+
 
 def get_tag_path(_element, _path):
     xmlns = _element.nsmap[None]
@@ -140,7 +144,7 @@ def get_cmd(_element, _cmd_parameter):
     if value is None:
         raise Exception("There's no " + _cmd_parameter)
         value = ''
-    return validate_tag(value.strip())
+    return validate_tag(value)
 
 
 def format_name(_element, _format):
