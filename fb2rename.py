@@ -188,11 +188,10 @@ args = parser.parse_args()
 
 errors = []
 for fname in args.fname:
-    book = etree.parse(fname)
     try:
+        book = etree.parse(fname)
         name = unicode(validate_filename(format_name(book.getroot(), args.format)) + '.fb2')
     except:
-        print sys.exc_info()[1]
         errors.append(fname)
         continue
     name = name.strip('\n ')
