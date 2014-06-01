@@ -54,7 +54,7 @@ def ensure_path_exists(path):
 
 
 replace_single_quote = ['"', u"\u00BB", u"\u00AB"]
-replace_underscore = []
+replace_underscore = [u'…']
 replace_dash = [u"–"]
 
 
@@ -65,9 +65,9 @@ def replace(i_str, i_forbidden, i_char):
     return result
 
 
-def validate_filename(i_filename):
-    result = i_filename.strip()
-    result = replace(result, ['?', ':'], '.')
+def validate_common(i_str):
+    result = i_str.strip()
+    result = replace(result, [u'№'], 'n')
     result = replace(result, replace_single_quote, "'")
     result = replace(result, replace_underscore, "_")
     result = replace(result, replace_dash, "-")
@@ -75,13 +75,15 @@ def validate_filename(i_filename):
     return result
 
 
+def validate_filename(i_filename):
+    result = validate_common(i_filename)
+    result = replace(result, ['?', ':'], '.')
+    return result
+
+
 def validate_tag(i_tag):
-    result = i_tag.strip()
+    result = validate_common(i_tag)
     result = replace(result, ['\\', '/'], '.')
-    result = replace(result, replace_single_quote, "'")
-    result = replace(result, replace_underscore, "_")
-    result = replace(result, replace_dash, "-")
-    result = ' '.join(result.split())
     return result
 
 
