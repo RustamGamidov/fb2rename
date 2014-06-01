@@ -46,27 +46,42 @@ publish_tags = {
 
 format_patterns = ['author', 'title', 'date', 'seq_name', 'seq_number', 'genre']
 
+
 def ensure_path_exists(path):
     if path:
         if not os.path.exists(path):
             os.makedirs(path)
 
 
+replace_single_quote = ['"', u"\u00BB", u"\u00AB"]
+replace_underscore = []
+replace_dash = [u"–"]
+
+
+def replace(i_str, i_forbidden, i_char):
+    result = i_str.strip()
+    for ch in i_forbidden:
+        result = result.replace(ch, i_char)
+    return result
+
+
 def validate_filename(i_filename):
-    forbidden = ['?', ':']
     result = i_filename.strip()
-    for ch in forbidden:
-        result = result.replace(ch,'.')
+    result = replace(result, ['?', ':'], '.')
+    result = replace(result, replace_single_quote, "'")
+    result = replace(result, replace_underscore, "_")
+    result = replace(result, replace_dash, "-")
+    result = ' '.join(result.split())
     return result
 
 
 def validate_tag(i_tag):
-    forbidden = ['\\', '/', '"']
     result = i_tag.strip()
-    result = validate_filename(result)
+    result = replace(result, ['\\', '/'], '.')
+    result = replace(result, replace_single_quote, "'")
+    result = replace(result, replace_underscore, "_")
+    result = replace(result, replace_dash, "-")
     result = ' '.join(result.split())
-    for ch in forbidden:
-        result = result.replace(ch,'_')
     return result
 
 
