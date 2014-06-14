@@ -10,41 +10,40 @@ import string
 
 from lxml import etree
 
-#import xml.dom.minidom
-#from xml.dom.minidom import Node
-
-
 title_tags = {
-'genre': 'description/title-info/genre',
-'author': 'description/title-info/author',
-'author_fname': 'description/title-info/author/first-name',
-'author_mname': 'description/title-info/author/middle-name',
-'author_lname': 'description/title-info/author/last-name',
-'author_id': 'description/title-info/author/id',
-'title': 'description/title-info/book-title',
-'date': 'description/title-info/date',
-'lang': 'description/title-info/lang',
-'lang_src': 'description/title-info/src-lang',
-'sequence': 'description/title-info/sequence'
+    'genre': 'description/title-info/genre',
+    'author': 'description/title-info/author',
+    'author_fname': 'description/title-info/author/first-name',
+    'author_mname': 'description/title-info/author/middle-name',
+    'author_lname': 'description/title-info/author/last-name',
+    'author_id': 'description/title-info/author/id',
+    'title': 'description/title-info/book-title',
+    'date': 'description/title-info/date',
+    'lang': 'description/title-info/lang',
+    'lang_src': 'description/title-info/src-lang',
+    'sequence': 'description/title-info/sequence'
 }
 
 document_tags = {
-'author': 'description/document-info/author',
-'date': 'description/document-info/date',
-'version': 'description/document-info/version',
-'publisher': 'description/document-info/publisher'
+    'author': 'description/document-info/author',
+    'date': 'description/document-info/date',
+    'version': 'description/document-info/version',
+    'publisher': 'description/document-info/publisher'
 }
 
 publish_tags = {
-'bookname': 'description/publish-info/bookname',
-'publisher': 'description/publish-info/publisher',
-'city': 'description/publish-info/city',
-'year': 'description/publish-info/year',
-'isbn': 'description/publish-info/isbn',
-'sequence': 'description/publish-info/sequence'
+    'bookname': 'description/publish-info/bookname',
+    'publisher': 'description/publish-info/publisher',
+    'city': 'description/publish-info/city',
+    'year': 'description/publish-info/year',
+    'isbn': 'description/publish-info/isbn',
+    'sequence': 'description/publish-info/sequence'
 }
 
-format_patterns = ['author', 'title', 'date', 'seq_name', 'seq_number', 'genre', 'oldname']
+format_patterns = [
+    'author', 'title', 'date', 'seq_name', 'seq_number', 'genre',
+    'oldname'
+]
 
 
 def ensure_path_exists(path):
@@ -146,7 +145,7 @@ def get_sequence(_element):
 
 def get_simple_value(_element, _cmd_parameter):
     value = ' '
-    if   _cmd_parameter in title_tags.keys():
+    if _cmd_parameter in title_tags.keys():
         value = get_tag_value(_element, title_tags[_cmd_parameter])
     elif _cmd_parameter in document_tags.keys():
         value = get_tag_value(_element, document_tags[_cmd_parameter])
@@ -157,6 +156,7 @@ def get_simple_value(_element, _cmd_parameter):
         raise Exception("There's no " + _cmd_parameter)
         value = ''
     return validate_tag(value)
+
 
 def get_combined_value(_element, _cmd_parameter, _oldname=''):
     value = ' '
@@ -179,9 +179,10 @@ def format_name(_fname, _format):
     book = etree.parse(_fname)
     element = book.getroot()
     result = _format
+    oldfname = os.path.basename(os.path.splitext(_fname)[0])
     for ptrn in format_patterns:
         if ptrn in _format:
-            value = get_combined_value(element, ptrn, os.path.basename(os.path.splitext(_fname)[0]))
+            value = get_combined_value(element, ptrn, oldfname)
             if value in [None, '']:
                 value = get_simple_value(element, ptrn)
             if value is not None:
@@ -190,21 +191,26 @@ def format_name(_fname, _format):
 
 
 def main():
-    parser = argparse.ArgumentParser(description='Renames given single fb2 file using pattern.')
-    parser.add_argument('fname', metavar='fb2_file_names', type=str, nargs='+',
-                       help='name of the files to rename')
-    parser.add_argument('--format', '-f', dest='format', action='store',
-                       default='%title%',
-                       help='Format of the new name')
-    parser.add_argument('--dry-run', '-d', dest='dryrun', action='store_true',
-                       default=False,
-                       help='Do not rename files. Just show new names.')
+    parser = argparse.ArgumentParser(
+        description='Renames given single fb2 file using pattern.')
+    parser.add_argument(
+        'fname', metavar='fb2_file_names', type=str, nargs='+',
+        help='name of the files to rename')
+    parser.add_argument(
+        '--format', '-f', dest='format', action='store',
+        default='%title%',
+        help='Format of the new name')
+    parser.add_argument(
+        '--dry-run', '-d', dest='dryrun', action='store_true',
+        default=False,
+        help='Do not rename files. Just show new names.')
     args = parser.parse_args()
 
     errors = []
     for fname in args.fname:
         try:
-            name = unicode(validate_filename(format_name(fname, args.format)) + '.fb2')
+            name = format_name(fname, args.format)
+            name = unicode(validate_filename(name + '.fb2'))
         except:
             errors.append(fname)
             continue
