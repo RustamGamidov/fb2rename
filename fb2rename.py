@@ -181,7 +181,7 @@ def format_name(_fname, _format):
     result = _format
     for ptrn in format_patterns:
         if ptrn in _format:
-            value = get_combined_value(element, ptrn, os.path.basename(os.path.splitext(fname)[0]))
+            value = get_combined_value(element, ptrn, os.path.basename(os.path.splitext(_fname)[0]))
             if value in [None, '']:
                 value = get_simple_value(element, ptrn)
             if value is not None:
