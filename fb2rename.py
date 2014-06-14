@@ -189,31 +189,36 @@ def format_name(_fname, _format):
     return result
 
 
-parser = argparse.ArgumentParser(description='Renames given single fb2 file using pattern.')
-parser.add_argument('fname', metavar='fb2_file_names', type=str, nargs='+',
-                   help='name of the files to rename')
-parser.add_argument('--format', '-f', dest='format', action='store',
-                   default='%title%',
-                   help='Format of the new name')
-parser.add_argument('--dry-run', '-d', dest='dryrun', action='store_true',
-                   default=False,
-                   help='Do not rename files. Just show new names.')
-args = parser.parse_args()
+def main():
+    parser = argparse.ArgumentParser(description='Renames given single fb2 file using pattern.')
+    parser.add_argument('fname', metavar='fb2_file_names', type=str, nargs='+',
+                       help='name of the files to rename')
+    parser.add_argument('--format', '-f', dest='format', action='store',
+                       default='%title%',
+                       help='Format of the new name')
+    parser.add_argument('--dry-run', '-d', dest='dryrun', action='store_true',
+                       default=False,
+                       help='Do not rename files. Just show new names.')
+    args = parser.parse_args()
 
-errors = []
-for fname in args.fname:
-    try:
-        name = unicode(validate_filename(format_name(fname, args.format)) + '.fb2')
-    except:
-        errors.append(fname)
-        continue
-    name = name.strip('\n ')
-    print fname, ' => ', name
-    if not args.dryrun:
+    errors = []
+    for fname in args.fname:
         try:
-            ensure_path_exists(os.path.dirname(name))
-            os.rename(fname, name)
+            name = unicode(validate_filename(format_name(fname, args.format)) + '.fb2')
         except:
             errors.append(fname)
+            continue
+        name = name.strip('\n ')
+        print fname, ' => ', name
+        if not args.dryrun:
+            try:
+                ensure_path_exists(os.path.dirname(name))
+                os.rename(fname, name)
+            except:
+                errors.append(fname)
 
-print 'Errors: ', errors
+    print 'Errors: ', errors
+
+
+if __name__ == '__main__':
+    main()
