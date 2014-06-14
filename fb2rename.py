@@ -44,7 +44,7 @@ publish_tags = {
 'sequence': 'description/publish-info/sequence'
 }
 
-format_patterns = ['author', 'title', 'date', 'seq_name', 'seq_number', 'genre']
+format_patterns = ['author', 'title', 'date', 'seq_name', 'seq_number', 'genre', 'oldname']
 
 
 def ensure_path_exists(path):
@@ -144,8 +144,21 @@ def get_sequence(_element):
     return '-'.join([name, num])
 
 
-def get_cmd(_element, _cmd_parameter):
-    """returns fb2 value corresponding to the placeholder"""
+def get_simple_value(_element, _cmd_parameter):
+    value = ' '
+    if   _cmd_parameter in title_tags.keys():
+        value = get_tag_value(_element, title_tags[_cmd_parameter])
+    elif _cmd_parameter in document_tags.keys():
+        value = get_tag_value(_element, document_tags[_cmd_parameter])
+    elif _cmd_parameter in publish_tags.keys():
+        value = get_tag_value(_element, publish_tags[_cmd_parameter])
+
+    if value is None:
+        raise Exception("There's no " + _cmd_parameter)
+        value = ''
+    return validate_tag(value)
+
+def get_combined_value(_element, _cmd_parameter, _oldname=''):
     value = ' '
     if _cmd_parameter == 'author':
         value = get_author(_element)
@@ -153,23 +166,24 @@ def get_cmd(_element, _cmd_parameter):
         value = get_tag_atribute(_element, title_tags['sequence'], 'name')
     elif _cmd_parameter == 'seq_number':
         value = get_tag_atribute(_element, title_tags['sequence'], 'number')
-    elif _cmd_parameter in title_tags.keys():
-        value = get_tag_value(_element, title_tags[_cmd_parameter])
-    elif _cmd_parameter in document_tags.keys():
-        value = get_tag_value(_element, document_tags[_cmd_parameter])
-    elif _cmd_parameter in publish_tags.keys():
-        value = get_tag_value(_element, publish_tags[_cmd_parameter])
+    elif _cmd_parameter == 'oldname':
+        value = _oldname
+
     if value is None:
         raise Exception("There's no " + _cmd_parameter)
         value = ''
     return validate_tag(value)
 
 
-def format_name(_element, _format):
+def format_name(_fname, _format):
+    book = etree.parse(_fname)
+    element = book.getroot()
     result = _format
     for ptrn in format_patterns:
         if ptrn in _format:
-            value = get_cmd(_element, ptrn)
+            value = get_combined_value(element, ptrn, os.path.basename(os.path.splitext(fname)[0]))
+            if value in [None, '']:
+                value = get_simple_value(element, ptrn)
             if value is not None:
                 result = result.replace('%' + ptrn + '%', value)
     return result
@@ -189,8 +203,7 @@ args = parser.parse_args()
 errors = []
 for fname in args.fname:
     try:
-        book = etree.parse(fname)
-        name = unicode(validate_filename(format_name(book.getroot(), args.format)) + '.fb2')
+        name = unicode(validate_filename(format_name(fname, args.format)) + '.fb2')
     except:
         errors.append(fname)
         continue
