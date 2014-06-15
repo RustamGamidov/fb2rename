@@ -86,27 +86,38 @@ def validate_tag(i_tag):
     return result
 
 
-def get_tag_path(_element, _path):
+def get_xmlns_tag_path(_element, _path):
     xmlns = _element.nsmap[None]
     tags = []
     for tag in _path.split('/'):
         tags.append('{' + xmlns + '}' + tag)
-    return _element.find('/'.join(tags))
+    return '/'.join(tags)
+
+
+def get_tag_by_path(_element, _path):
+    return _element.findall(get_xmlns_tag_path(_element, _path))
+
+
+def get_multitag_values(_element, _path):
+    tags = get_tag_by_path(_element, _path)
+    if len(tags) == 0:
+        raise Exception("There's no " + _path)
+        return ['']
+    values = []
+    for tag in tags:
+        cval = tag.text
+        if cval is None:
+            cval = ''
+        values.append(cval)
+    return values
 
 
 def get_tag_value(_element, _path):
-    tag = get_tag_path(_element, _path)
-    if tag is None:
-        raise Exception("There's no " + _path)
-        return ''
-    value = tag.text
-    if value is None:
-        value = ''
-    return value
+    return get_multitag_values(_element, _path)[0]
 
 
 def get_tag_atribute(_element, _path, _attr):
-    tag = get_tag_path(_element, _path)
+    tag = get_tag_by_path(_element, _path)
     if tag is None:
         raise Exception("There's no " + _path + " " + _attr)
         return ''
