@@ -95,11 +95,15 @@ def get_xmlns_tag_path(_element, _path):
 
 
 def get_tag_by_path(_element, _path):
+    return _element.find(get_xmlns_tag_path(_element, _path))
+
+
+def get_multitag_by_path(_element, _path):
     return _element.findall(get_xmlns_tag_path(_element, _path))
 
 
 def get_multitag_values(_element, _path):
-    tags = get_tag_by_path(_element, _path)
+    tags = get_multitag_by_path(_element, _path)
     if len(tags) == 0:
         raise Exception("There's no " + _path)
         return ['']
@@ -124,28 +128,37 @@ def get_tag_atribute(_element, _path, _attr):
     return tag.get(_attr)
 
 
-def get_author(_element):
-    author = get_tag_value(_element, title_tags['author'])
-    if author is None:
-        raise Exception("There's no author")
-        return ''
+def get_person_name(_element):
     try:
-        fname = get_tag_value(_element, title_tags['author_fname'])
+        fname = get_tag_value(_element, 'first-name')
     except:
         fname = ''
     try:
-        lname = get_tag_value(_element, title_tags['author_lname'])
+        lname = get_tag_value(_element, 'last-name')
     except:
         lname = ''
     try:
-        mname = get_tag_value(_element, title_tags['author_mname'])
+        mname = get_tag_value(_element, 'middle-name')
     except:
         mname = ''
     if not fname and not lname and not mname:
         raise Exception("There's no author")
         return ''
-    author = ', '.join([lname, ' '.join([fname, mname])])
-    return author
+    result = ', '.join([lname, ' '.join([fname, mname])])
+    return result
+
+
+def get_author(_element):
+    authors_tag = get_multitag_by_path(_element, title_tags['author'])
+    if not authors_tag:
+        raise Exception("There's no author")
+        return ''
+    authors = []
+    for tag in authors_tag:
+        author = get_person_name(tag)
+        if author is not None:
+            authors.append(author)
+    return '. '.join(authors)
 
 
 def get_sequence(_element):
