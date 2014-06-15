@@ -2,11 +2,7 @@
 # -*- coding: UTF-8 -*-
 
 import os
-import glob
-import sys
-import fnmatch
 import argparse
-import string
 
 from lxml import etree
 
