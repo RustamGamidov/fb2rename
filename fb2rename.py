@@ -37,7 +37,7 @@ publish_tags = {
 }
 
 format_patterns = [
-    'author', 'title', 'date', 'seq_name', 'seq_number', 'genre',
+    'author', 'title', 'date', 'sequence', 'seq_name', 'seq_number', 'genre',
     'oldname'
 ]
 
@@ -176,8 +176,12 @@ def get_author(_element):
 
 def get_sequence(_element):
     attrs = XmlWrapper.get_all_tag_atributes(_element, title_tags['sequence'])
-    name = attrs['name']
-    num = attrs['number']
+    name = ''
+    if 'name' in attrs.keys():
+        name = attrs['name']
+    num = ''
+    if 'number' in attrs.keys():
+        num = attrs['number']
     return '-'.join([name, num])
 
 
@@ -203,6 +207,8 @@ def get_combined_value(_element, _cmd_parameter, _oldname=''):
     value = ' '
     if _cmd_parameter == 'author':
         value = get_author(_element)
+    elif _cmd_parameter == 'sequence':
+        value = get_sequence(_element)
     elif _cmd_parameter == 'seq_name':
         value = XmlWrapper.get_tag_atribute(
             _element, title_tags['sequence'], 'name')
