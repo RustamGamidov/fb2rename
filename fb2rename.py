@@ -42,6 +42,48 @@ format_patterns = [
 ]
 
 
+class XmlWrapper(object):
+
+    @staticmethod
+    def get_xmlns_tag_path(a_element, a_path):
+        xmlns = a_element.nsmap[None]
+        tags = []
+        for tag in a_path.split('/'):
+            tags.append('{' + xmlns + '}' + tag)
+        return '/'.join(tags)
+
+    @staticmethod
+    def get_multitag_by_path(a_element, a_path):
+        return a_element.findall(
+            XmlWrapper.get_xmlns_tag_path(a_element, a_path)
+        )
+
+    @staticmethod
+    def get_tag_by_path(a_element, a_path):
+        return a_element.find(XmlWrapper.get_xmlns_tag_path(a_element, a_path))
+
+    @staticmethod
+    def get_multitag_values(a_element, a_path):
+        tags = XmlWrapper.get_multitag_by_path(a_element, a_path)
+        if len(tags) == 0:
+            raise Exception("There's no " + a_path)
+            return ['']
+        values = []
+        for tag in tags:
+            cval = tag.text
+            if cval is None:
+                cval = ''
+            values.append(cval)
+        return values
+
+    @staticmethod
+    def get_tag_value(a_element, a_path):
+        values = XmlWrapper.get_multitag_values(a_element, a_path)
+        if len(values) > 0:
+            return values[0]
+        return []
+
+
 def ensure_path_exists(path):
     if path:
         if not os.path.exists(path):
@@ -82,42 +124,8 @@ def validate_tag(i_tag):
     return result
 
 
-def get_xmlns_tag_path(_element, _path):
-    xmlns = _element.nsmap[None]
-    tags = []
-    for tag in _path.split('/'):
-        tags.append('{' + xmlns + '}' + tag)
-    return '/'.join(tags)
-
-
-def get_tag_by_path(_element, _path):
-    return _element.find(get_xmlns_tag_path(_element, _path))
-
-
-def get_multitag_by_path(_element, _path):
-    return _element.findall(get_xmlns_tag_path(_element, _path))
-
-
-def get_multitag_values(_element, _path):
-    tags = get_multitag_by_path(_element, _path)
-    if len(tags) == 0:
-        raise Exception("There's no " + _path)
-        return ['']
-    values = []
-    for tag in tags:
-        cval = tag.text
-        if cval is None:
-            cval = ''
-        values.append(cval)
-    return values
-
-
-def get_tag_value(_element, _path):
-    return get_multitag_values(_element, _path)[0]
-
-
 def get_tag_atribute(_element, _path, _attr):
-    tag = get_tag_by_path(_element, _path)
+    tag = XmlWrapper.get_tag_by_path(_element, _path)
     if tag is None:
         raise Exception("There's no " + _path + " " + _attr)
         return ''
@@ -126,15 +134,15 @@ def get_tag_atribute(_element, _path, _attr):
 
 def get_person_name(_element):
     try:
-        fname = get_tag_value(_element, 'first-name')
+        fname = XmlWrapper.get_tag_value(_element, 'first-name')
     except:
         fname = ''
     try:
-        lname = get_tag_value(_element, 'last-name')
+        lname = XmlWrapper.get_tag_value(_element, 'last-name')
     except:
         lname = ''
     try:
-        mname = get_tag_value(_element, 'middle-name')
+        mname = XmlWrapper.get_tag_value(_element, 'middle-name')
     except:
         mname = ''
     if not fname and not lname and not mname:
@@ -145,7 +153,8 @@ def get_person_name(_element):
 
 
 def get_author(_element):
-    authors_tag = get_multitag_by_path(_element, title_tags['author'])
+    authors_tag = XmlWrapper.get_multitag_by_path(
+        _element, title_tags['author'])
     if not authors_tag:
         raise Exception("There's no author")
         return ''
@@ -166,11 +175,14 @@ def get_sequence(_element):
 def get_simple_value(_element, _cmd_parameter):
     value = ' '
     if _cmd_parameter in title_tags.keys():
-        value = get_tag_value(_element, title_tags[_cmd_parameter])
+        value = XmlWrapper.get_tag_value(
+            _element, title_tags[_cmd_parameter])
     elif _cmd_parameter in document_tags.keys():
-        value = get_tag_value(_element, document_tags[_cmd_parameter])
+        value = XmlWrapper.get_tag_value(
+            _element, document_tags[_cmd_parameter])
     elif _cmd_parameter in publish_tags.keys():
-        value = get_tag_value(_element, publish_tags[_cmd_parameter])
+        value = XmlWrapper.get_tag_value(
+            _element, publish_tags[_cmd_parameter])
 
     if value is None:
         raise Exception("There's no " + _cmd_parameter)
