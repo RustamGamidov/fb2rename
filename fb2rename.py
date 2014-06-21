@@ -83,6 +83,14 @@ class XmlWrapper(object):
             return values[0]
         return []
 
+    @staticmethod
+    def get_tag_atribute(a_element, a_path, a_attr):
+        tag = XmlWrapper.get_tag_by_path(a_element, a_path)
+        if tag is None:
+            raise Exception("There's no " + a_path + " " + a_attr)
+            return ''
+        return tag.get(a_attr)
+
 
 def ensure_path_exists(path):
     if path:
@@ -124,14 +132,6 @@ def validate_tag(i_tag):
     return result
 
 
-def get_tag_atribute(_element, _path, _attr):
-    tag = XmlWrapper.get_tag_by_path(_element, _path)
-    if tag is None:
-        raise Exception("There's no " + _path + " " + _attr)
-        return ''
-    return tag.get(_attr)
-
-
 def get_person_name(_element):
     try:
         fname = XmlWrapper.get_tag_value(_element, 'first-name')
@@ -167,8 +167,10 @@ def get_author(_element):
 
 
 def get_sequence(_element):
-    name = get_tag_atribute(_element, title_tags['sequence'], 'name')
-    num = get_tag_atribute(_element, title_tags['sequence'], 'number')
+    name = XmlWrapper.get_tag_atribute(
+        _element, title_tags['sequence'], 'name')
+    num = XmlWrapper.get_tag_atribute(
+        _element, title_tags['sequence'], 'number')
     return '-'.join([name, num])
 
 
@@ -195,9 +197,11 @@ def get_combined_value(_element, _cmd_parameter, _oldname=''):
     if _cmd_parameter == 'author':
         value = get_author(_element)
     elif _cmd_parameter == 'seq_name':
-        value = get_tag_atribute(_element, title_tags['sequence'], 'name')
+        value = XmlWrapper.get_tag_atribute(
+            _element, title_tags['sequence'], 'name')
     elif _cmd_parameter == 'seq_number':
-        value = get_tag_atribute(_element, title_tags['sequence'], 'number')
+        value = XmlWrapper.get_tag_atribute(
+            _element, title_tags['sequence'], 'number')
     elif _cmd_parameter == 'oldname':
         value = _oldname
 
