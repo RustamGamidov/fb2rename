@@ -91,6 +91,14 @@ class XmlWrapper(object):
             return ''
         return tag.get(a_attr)
 
+    @staticmethod
+    def get_all_tag_atributes(a_element, a_path):
+        tag = XmlWrapper.get_tag_by_path(a_element, a_path)
+        if tag is None:
+            raise Exception("There's no " + a_path)
+            return {}
+        return tag.attrib
+
 
 def ensure_path_exists(path):
     if path:
@@ -167,10 +175,9 @@ def get_author(_element):
 
 
 def get_sequence(_element):
-    name = XmlWrapper.get_tag_atribute(
-        _element, title_tags['sequence'], 'name')
-    num = XmlWrapper.get_tag_atribute(
-        _element, title_tags['sequence'], 'number')
+    attrs = XmlWrapper.get_all_tag_atributes(_element, title_tags['sequence'])
+    name = attrs['name']
+    num = attrs['number']
     return '-'.join([name, num])
 
 
