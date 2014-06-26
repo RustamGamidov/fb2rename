@@ -190,7 +190,7 @@ class Book_fb2(Book):
         self.format = 'fb2'
         self.tags_path = {
             'title':    'description/title-info/book-title',
-            'authosr':  'description/title-info/author'
+            'authors':  'description/title-info/author'
         }
 
     def open_virtual(self, a_path):
