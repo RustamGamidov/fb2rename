@@ -42,6 +42,47 @@ format_patterns = [
 ]
 
 
+class Common(object):
+    replace_single_quote = ['"', u"\u00BB", u"\u00AB"]
+    replace_underscore = [u'…']
+    replace_dash = [u"–"]
+
+    @staticmethod
+    def ensure_path_exists(path):
+        if path:
+            if not os.path.exists(path):
+                os.makedirs(path)
+
+    @staticmethod
+    def replace(a_str, a_forbidden, a_char):
+        result = a_str.strip()
+        for ch in a_forbidden:
+            result = result.replace(ch, a_char)
+        return result
+
+    @staticmethod
+    def validate_common(a_str):
+        result = a_str.strip()
+        result = Common.replace(result, [u'№'], 'n')
+        result = Common.replace(result, Common.replace_single_quote, "'")
+        result = Common.replace(result, Common.replace_underscore, "_")
+        result = Common.replace(result, Common.replace_dash, "-")
+        result = ' '.join(result.split())
+        return result
+
+    @staticmethod
+    def validate_filename(a_filename):
+        result = Common.validate_common(a_filename)
+        result = Common.replace(result, ['?', ':'], '.')
+        return result
+
+    @staticmethod
+    def validate_tag(a_tag):
+        result = Common.validate_common(a_tag)
+        result = Common.replace(result, ['\\', '/'], '.')
+        return result
+
+
 class XmlWrapper(object):
 
     @staticmethod
@@ -100,44 +141,70 @@ class XmlWrapper(object):
         return tag.attrib
 
 
-def ensure_path_exists(path):
-    if path:
-        if not os.path.exists(path):
-            os.makedirs(path)
+class Book(object):
+    def __init__(self):
+        self.items = [
+            'oldname', 'authors', 'genres',
+            'title', 'year', 'date',
+            'sequnce', 'seq_name', 'seq_number'
+        ]
+        self.lst_items = [
+            'authors', 'genres'
+        ]
+        self.filepath = ''
+        self.format = ''
+
+    @staticmethod
+    def format_person_name(a_first, a_middle, a_last):
+        if not a_first and not a_last and not a_middle:
+            raise Exception("There's no author")
+        result = ', '.join([a_last, ' '.join([a_first, a_middle])])
+        return result
+
+    def open_virtual(self, a_path):
+        raise NotImplementedError('virtual function')
+
+    def open(self, a_path):
+        if not os.path.exists(a_path):
+            return
+        self.filepath = a_path
+        self.open_virtual(a_path)
+
+    def get_value_virtual(self, a_item):
+        raise NotImplementedError('virtual function')
+
+    def get_value(self, a_item):
+        if a_item in self.items:
+            return self.get_value_virtual(a_item)
+        return []
+
+    def get_oldname(self):
+        if self.filepath:
+            return os.path.splittext(os.path.basename(self.filepath))[0]
+        return ''
 
 
-replace_single_quote = ['"', u"\u00BB", u"\u00AB"]
-replace_underscore = [u'…']
-replace_dash = [u"–"]
+class book_fb2(Book):
+    def __init__(self):
+        super(book_fb2, self).__init__()
+        self.format = 'fb2'
+        self.tags_path = {
+            'title':    'description/title-info/book-title',
+            'authosr':  'description/title-info/author'
+        }
 
+    def open_virtual(self, a_path):
+        self.book = etree.parse(a_path).getroot()
+        self.xmlns = self.book.nsmap[None]
+        pass
 
-def replace(i_str, i_forbidden, i_char):
-    result = i_str.strip()
-    for ch in i_forbidden:
-        result = result.replace(ch, i_char)
-    return result
+    def get_value_virtual(self, a_item):
+        if(a_item == 'oldname'):
+            return self.get_oldname()
+        return ''
 
-
-def validate_common(i_str):
-    result = i_str.strip()
-    result = replace(result, [u'№'], 'n')
-    result = replace(result, replace_single_quote, "'")
-    result = replace(result, replace_underscore, "_")
-    result = replace(result, replace_dash, "-")
-    result = ' '.join(result.split())
-    return result
-
-
-def validate_filename(i_filename):
-    result = validate_common(i_filename)
-    result = replace(result, ['?', ':'], '.')
-    return result
-
-
-def validate_tag(i_tag):
-    result = validate_common(i_tag)
-    result = replace(result, ['\\', '/'], '.')
-    return result
+    def get_tag_value(self, a_tag_path):
+        return
 
 
 def get_person_name(_element):
@@ -153,11 +220,7 @@ def get_person_name(_element):
         mname = XmlWrapper.get_tag_value(_element, 'middle-name')
     except:
         mname = ''
-    if not fname and not lname and not mname:
-        raise Exception("There's no author")
-        return ''
-    result = ', '.join([lname, ' '.join([fname, mname])])
-    return result
+    return Book.format_person_name(fname, mname, lname)
 
 
 def get_author(_element):
@@ -200,7 +263,7 @@ def get_simple_value(_element, _cmd_parameter):
     if value is None:
         raise Exception("There's no " + _cmd_parameter)
         value = ''
-    return validate_tag(value)
+    return Common.validate_tag(value)
 
 
 def get_combined_value(_element, _cmd_parameter, _oldname=''):
@@ -221,7 +284,7 @@ def get_combined_value(_element, _cmd_parameter, _oldname=''):
     if value is None:
         raise Exception("There's no " + _cmd_parameter)
         value = ''
-    return validate_tag(value)
+    return Common.validate_tag(value)
 
 
 def format_name(_fname, _format):
@@ -259,7 +322,7 @@ def main():
     for fname in args.fname:
         try:
             name = format_name(fname, args.format)
-            name = unicode(validate_filename(name + '.fb2'))
+            name = unicode(Common.validate_filename(name + '.fb2'))
         except:
             errors.append(fname)
             continue
@@ -267,7 +330,7 @@ def main():
         print fname, ' => ', name
         if not args.dryrun:
             try:
-                ensure_path_exists(os.path.dirname(name))
+                Common.ensure_path_exists(os.path.dirname(name))
                 os.rename(fname, name)
             except:
                 errors.append(fname)
