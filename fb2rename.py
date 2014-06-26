@@ -184,9 +184,9 @@ class Book(object):
         return ''
 
 
-class book_fb2(Book):
+class Book_fb2(Book):
     def __init__(self):
-        super(book_fb2, self).__init__()
+        super(Book_fb2, self).__init__()
         self.format = 'fb2'
         self.tags_path = {
             'title':    'description/title-info/book-title',
