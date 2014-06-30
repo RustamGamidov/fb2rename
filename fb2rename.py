@@ -206,21 +206,21 @@ class Book_fb2(Book):
     def get_tag_value(self, a_tag_path):
         return
 
-
-def get_person_name(_element):
-    try:
-        fname = XmlWrapper.get_tag_value(_element, 'first-name')
-    except:
-        fname = ''
-    try:
-        lname = XmlWrapper.get_tag_value(_element, 'last-name')
-    except:
-        lname = ''
-    try:
-        mname = XmlWrapper.get_tag_value(_element, 'middle-name')
-    except:
-        mname = ''
-    return Book.format_person_name(fname, mname, lname)
+    @staticmethod
+    def get_person_name(a_element):
+        try:
+            fname = XmlWrapper.get_tag_value(a_element, 'first-name')
+        except:
+            fname = ''
+        try:
+            lname = XmlWrapper.get_tag_value(a_element, 'last-name')
+        except:
+            lname = ''
+        try:
+            mname = XmlWrapper.get_tag_value(a_element, 'middle-name')
+        except:
+            mname = ''
+        return Book.format_person_name(fname, mname, lname)
 
 
 def get_author(_element):
@@ -231,7 +231,7 @@ def get_author(_element):
         return ''
     authors = []
     for tag in authors_tag:
-        author = get_person_name(tag)
+        author = Book_fb2.get_person_name(tag)
         if author is not None:
             authors.append(author)
     return '. '.join(authors)
