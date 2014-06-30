@@ -37,7 +37,7 @@ publish_tags = {
 }
 
 format_patterns = [
-    'author', 'title', 'date', 'sequence', 'seq_name', 'seq_number', 'genre',
+    'authors', 'title', 'date', 'sequence', 'seq_name', 'seq_number', 'genre',
     'oldname'
 ]
 
@@ -146,7 +146,7 @@ class Book(object):
         self.items = [
             'oldname', 'authors', 'genres',
             'title', 'year', 'date',
-            'sequnce', 'seq_name', 'seq_number'
+            'sequence', 'seq_name', 'seq_number'
         ]
         self.lst_items = [
             'authors', 'genres'
@@ -180,7 +180,7 @@ class Book(object):
 
     def get_oldname(self):
         if self.filepath:
-            return os.path.splittext(os.path.basename(self.filepath))[0]
+            return os.path.splitext(os.path.basename(self.filepath))[0]
         return ''
 
 
@@ -190,18 +190,14 @@ class Book_fb2(Book):
         self.format = 'fb2'
         self.tags_path = {
             'title':    'description/title-info/book-title',
-            'authors':  'description/title-info/author'
+            'authors':  'description/title-info/author',
+            'sequence': 'description/title-info/sequence'
         }
 
     def open_virtual(self, a_path):
         self.book = etree.parse(a_path).getroot()
         self.xmlns = self.book.nsmap[None]
         pass
-
-    def get_value_virtual(self, a_item):
-        if(a_item == 'oldname'):
-            return self.get_oldname()
-        return ''
 
     def get_tag_value(self, a_tag_path):
         return
@@ -222,81 +218,65 @@ class Book_fb2(Book):
             mname = ''
         return Book.format_person_name(fname, mname, lname)
 
+    def get_authors(self):
+        authors_tag = XmlWrapper.get_multitag_by_path(
+            self.book, self.tags_path['authors'])
+        if not authors_tag:
+            raise Exception("There's no author")
+            return ''
+        authors = []
+        for tag in authors_tag:
+            author = self.get_person_name(tag)
+            if author is not None:
+                authors.append(author)
+        return '. '.join(authors)
 
-def get_author(_element):
-    authors_tag = XmlWrapper.get_multitag_by_path(
-        _element, title_tags['author'])
-    if not authors_tag:
-        raise Exception("There's no author")
-        return ''
-    authors = []
-    for tag in authors_tag:
-        author = Book_fb2.get_person_name(tag)
-        if author is not None:
-            authors.append(author)
-    return '. '.join(authors)
+    def get_sequence(self):
+        attrs = XmlWrapper.get_all_tag_atributes(
+            self.book, self.tags_path['sequence'])
+        name = ''
+        if 'name' in attrs.keys():
+            name = attrs['name']
+        num = ''
+        if 'number' in attrs.keys():
+            num = attrs['number']
+        return '-'.join([name, num])
 
-
-def get_sequence(_element):
-    attrs = XmlWrapper.get_all_tag_atributes(_element, title_tags['sequence'])
-    name = ''
-    if 'name' in attrs.keys():
-        name = attrs['name']
-    num = ''
-    if 'number' in attrs.keys():
-        num = attrs['number']
-    return '-'.join([name, num])
-
-
-def get_simple_value(_element, _cmd_parameter):
-    value = ' '
-    if _cmd_parameter in title_tags.keys():
-        value = XmlWrapper.get_tag_value(
-            _element, title_tags[_cmd_parameter])
-    elif _cmd_parameter in document_tags.keys():
-        value = XmlWrapper.get_tag_value(
-            _element, document_tags[_cmd_parameter])
-    elif _cmd_parameter in publish_tags.keys():
-        value = XmlWrapper.get_tag_value(
-            _element, publish_tags[_cmd_parameter])
-
-    if value is None:
-        raise Exception("There's no " + _cmd_parameter)
+    def get_value_virtual(self, a_item):
         value = ''
-    return Common.validate_tag(value)
+        if a_item == 'authors':
+            value = self.get_authors()
+        elif a_item == 'sequence':
+            value = self.get_sequence()
+        elif a_item == 'seq_name':
+            value = XmlWrapper.get_tag_atribute(
+                self.book, self.tags_path['sequence'], 'name')
+        elif a_item == 'seq_number':
+            value = XmlWrapper.get_tag_atribute(
+                self.book, self.tags_path['sequence'], 'number')
+        elif a_item == 'oldname':
+            value = self.get_oldname()
+        elif a_item in title_tags.keys():
+            value = XmlWrapper.get_tag_value(
+                self.book, self.tags_path[a_item])
+        elif a_item in document_tags.keys():
+            value = XmlWrapper.get_tag_value(
+                self.book, document_tags[a_item])
+        elif a_item in publish_tags.keys():
+            value = XmlWrapper.get_tag_value(
+                self.book, publish_tags[a_item])
+
+        if value is None:
+            raise Exception("There's no " + a_item)
+            value = ''
+        return Common.validate_tag(value)
 
 
-def get_combined_value(_element, _cmd_parameter, _oldname=''):
-    value = ' '
-    if _cmd_parameter == 'author':
-        value = get_author(_element)
-    elif _cmd_parameter == 'sequence':
-        value = get_sequence(_element)
-    elif _cmd_parameter == 'seq_name':
-        value = XmlWrapper.get_tag_atribute(
-            _element, title_tags['sequence'], 'name')
-    elif _cmd_parameter == 'seq_number':
-        value = XmlWrapper.get_tag_atribute(
-            _element, title_tags['sequence'], 'number')
-    elif _cmd_parameter == 'oldname':
-        value = _oldname
-
-    if value is None:
-        raise Exception("There's no " + _cmd_parameter)
-        value = ''
-    return Common.validate_tag(value)
-
-
-def format_name(_fname, _format):
-    book = etree.parse(_fname)
-    element = book.getroot()
+def format_name(a_book, _format):
     result = _format
-    oldfname = os.path.basename(os.path.splitext(_fname)[0])
     for ptrn in format_patterns:
         if ptrn in _format:
-            value = get_combined_value(element, ptrn, oldfname)
-            if value in [None, '']:
-                value = get_simple_value(element, ptrn)
+            value = a_book.get_value(ptrn)
             if value is not None:
                 result = result.replace('%' + ptrn + '%', value)
     return result
@@ -319,9 +299,11 @@ def main():
     args = parser.parse_args()
 
     errors = []
+    book = Book_fb2()
     for fname in args.fname:
         try:
-            name = format_name(fname, args.format)
+            book.open(fname)
+            name = format_name(book, args.format)
             name = unicode(Common.validate_filename(name + '.fb2'))
         except:
             errors.append(fname)
