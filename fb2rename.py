@@ -6,36 +6,6 @@ import argparse
 
 from lxml import etree
 
-title_tags = {
-    'genre': 'description/title-info/genre',
-    'author': 'description/title-info/author',
-    'author_fname': 'description/title-info/author/first-name',
-    'author_mname': 'description/title-info/author/middle-name',
-    'author_lname': 'description/title-info/author/last-name',
-    'author_id': 'description/title-info/author/id',
-    'title': 'description/title-info/book-title',
-    'date': 'description/title-info/date',
-    'lang': 'description/title-info/lang',
-    'lang_src': 'description/title-info/src-lang',
-    'sequence': 'description/title-info/sequence'
-}
-
-document_tags = {
-    'author': 'description/document-info/author',
-    'date': 'description/document-info/date',
-    'version': 'description/document-info/version',
-    'publisher': 'description/document-info/publisher'
-}
-
-publish_tags = {
-    'bookname': 'description/publish-info/bookname',
-    'publisher': 'description/publish-info/publisher',
-    'city': 'description/publish-info/city',
-    'year': 'description/publish-info/year',
-    'isbn': 'description/publish-info/isbn',
-    'sequence': 'description/publish-info/sequence'
-}
-
 format_patterns = [
     'authors', 'title', 'date', 'sequence', 'seq_name', 'seq_number', 'genre',
     'oldname'
@@ -185,6 +155,36 @@ class Book(object):
 
 
 class Book_fb2(Book):
+    title_tags = {
+        'genre': 'description/title-info/genre',
+        'author': 'description/title-info/author',
+        'author_fname': 'description/title-info/author/first-name',
+        'author_mname': 'description/title-info/author/middle-name',
+        'author_lname': 'description/title-info/author/last-name',
+        'author_id': 'description/title-info/author/id',
+        'title': 'description/title-info/book-title',
+        'date': 'description/title-info/date',
+        'lang': 'description/title-info/lang',
+        'lang_src': 'description/title-info/src-lang',
+        'sequence': 'description/title-info/sequence'
+    }
+
+    document_tags = {
+        'author': 'description/document-info/author',
+        'date': 'description/document-info/date',
+        'version': 'description/document-info/version',
+        'publisher': 'description/document-info/publisher'
+    }
+
+    publish_tags = {
+        'bookname': 'description/publish-info/bookname',
+        'publisher': 'description/publish-info/publisher',
+        'city': 'description/publish-info/city',
+        'year': 'description/publish-info/year',
+        'isbn': 'description/publish-info/isbn',
+        'sequence': 'description/publish-info/sequence'
+    }
+
     def __init__(self):
         super(Book_fb2, self).__init__()
         self.format = 'fb2'
@@ -256,15 +256,15 @@ class Book_fb2(Book):
                 self.book, self.tags_path['sequence'], 'number')
         elif a_item == 'oldname':
             value = self.get_oldname()
-        elif a_item in title_tags.keys():
+        elif a_item in self.title_tags.keys():
             value = XmlWrapper.get_tag_value(
                 self.book, self.tags_path[a_item])
-        elif a_item in document_tags.keys():
+        elif a_item in self.document_tags.keys():
             value = XmlWrapper.get_tag_value(
-                self.book, document_tags[a_item])
-        elif a_item in publish_tags.keys():
+                self.book, self.document_tags[a_item])
+        elif a_item in self.publish_tags.keys():
             value = XmlWrapper.get_tag_value(
-                self.book, publish_tags[a_item])
+                self.book, self.publish_tags[a_item])
 
         if value is None:
             raise Exception("There's no " + a_item)
