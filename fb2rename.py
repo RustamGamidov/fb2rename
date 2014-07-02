@@ -3,12 +3,13 @@
 
 import os
 import argparse
+from time import strftime, strptime
 
 from lxml import etree
 
 format_patterns = [
     'authors', 'title', 'date', 'sequence', 'seq_name', 'seq_number', 'genre',
-    'oldname'
+    'oldname', 'year'
 ]
 
 
@@ -242,6 +243,16 @@ class Book_fb2(Book):
             num = attrs['number']
         return '-'.join([name, num])
 
+    def get_date(self):
+        attrs = XmlWrapper.get_all_tag_atributes(
+            self.book, self.title_tags['date'])
+        if not attrs:
+            raise Exception("There's no date")
+        val = ''
+        if 'value' in attrs.keys():
+            val = strptime(attrs['value'], "%Y-%m-%d")
+        return val
+
     def get_value_virtual(self, a_item):
         value = ''
         if a_item == 'authors':
@@ -256,6 +267,12 @@ class Book_fb2(Book):
                 self.book, self.tags_path['sequence'], 'number')
         elif a_item == 'oldname':
             value = self.get_oldname()
+        elif a_item == 'date':
+            dt = self.get_date()
+            value = strftime("%Y-%m-%d", dt)
+        elif a_item == 'year':
+            dt = self.get_date()
+            value = strftime("%Y", dt)
         elif a_item in self.title_tags.keys():
             value = XmlWrapper.get_tag_value(
                 self.book, self.tags_path[a_item])
