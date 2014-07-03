@@ -158,7 +158,7 @@ class Book(object):
 class Book_fb2(Book):
     title_tags = {
         'genre': 'description/title-info/genre',
-        'author': 'description/title-info/author',
+        'authors': 'description/title-info/author',
         'author_fname': 'description/title-info/author/first-name',
         'author_mname': 'description/title-info/author/middle-name',
         'author_lname': 'description/title-info/author/last-name',
@@ -171,7 +171,7 @@ class Book_fb2(Book):
     }
 
     document_tags = {
-        'author': 'description/document-info/author',
+        'authors': 'description/document-info/author',
         'date': 'description/document-info/date',
         'version': 'description/document-info/version',
         'publisher': 'description/document-info/publisher'
@@ -189,11 +189,6 @@ class Book_fb2(Book):
     def __init__(self):
         super(Book_fb2, self).__init__()
         self.format = 'fb2'
-        self.tags_path = {
-            'title':    'description/title-info/book-title',
-            'authors':  'description/title-info/author',
-            'sequence': 'description/title-info/sequence'
-        }
 
     def open_virtual(self, a_path):
         self.book = etree.parse(a_path).getroot()
@@ -221,7 +216,7 @@ class Book_fb2(Book):
 
     def get_authors(self):
         authors_tag = XmlWrapper.get_multitag_by_path(
-            self.book, self.tags_path['authors'])
+            self.book, self.title_tags['authors'])
         if not authors_tag:
             raise Exception("There's no author")
             return ''
@@ -234,7 +229,7 @@ class Book_fb2(Book):
 
     def get_sequence(self):
         attrs = XmlWrapper.get_all_tag_atributes(
-            self.book, self.tags_path['sequence'])
+            self.book, self.title_tags['sequence'])
         name = ''
         if 'name' in attrs.keys():
             name = attrs['name']
@@ -261,10 +256,10 @@ class Book_fb2(Book):
             value = self.get_sequence()
         elif a_item == 'seq_name':
             value = XmlWrapper.get_tag_atribute(
-                self.book, self.tags_path['sequence'], 'name')
+                self.book, self.title_tags['sequence'], 'name')
         elif a_item == 'seq_number':
             value = XmlWrapper.get_tag_atribute(
-                self.book, self.tags_path['sequence'], 'number')
+                self.book, self.title_tags['sequence'], 'number')
         elif a_item == 'oldname':
             value = self.get_oldname()
         elif a_item == 'date':
@@ -275,7 +270,7 @@ class Book_fb2(Book):
             value = strftime("%Y", dt)
         elif a_item in self.title_tags.keys():
             value = XmlWrapper.get_tag_value(
-                self.book, self.tags_path[a_item])
+                self.book, self.title_tags[a_item])
         elif a_item in self.document_tags.keys():
             value = XmlWrapper.get_tag_value(
                 self.book, self.document_tags[a_item])
