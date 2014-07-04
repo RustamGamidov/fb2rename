@@ -195,9 +195,6 @@ class Book_fb2(Book):
         self.xmlns = self.book.nsmap[None]
         pass
 
-    def get_tag_value(self, a_tag_path):
-        return
-
     @staticmethod
     def get_person_name(a_element):
         try:
