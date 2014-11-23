@@ -3,6 +3,7 @@
 
 import os
 import argparse
+import sys
 from time import strftime, strptime
 
 from lxml import etree
@@ -307,7 +308,7 @@ def main():
         help='Do not rename files. Just show new names.')
     args = parser.parse_args()
 
-    errors = []
+    errors = {}
     book = Book_fb2()
     for fname in args.fname:
         try:
@@ -315,7 +316,7 @@ def main():
             name = format_name(book, args.format)
             name = unicode(Common.validate_filename(name + '.fb2'))
         except:
-            errors.append(fname)
+            errors[fname] = sys.exc_info()[1]
             continue
         name = name.strip('\n ')
         print fname, ' => ', name
@@ -324,7 +325,7 @@ def main():
                 Common.ensure_path_exists(os.path.dirname(name))
                 os.rename(fname, name)
             except:
-                errors.append(fname)
+                errors[fname] = sys.exc_info()[1]
 
     print 'Errors: ', errors
 
