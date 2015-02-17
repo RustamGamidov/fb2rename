@@ -115,6 +115,7 @@ class XmlWrapper(object):
 
 
 class Book(object):
+
     def __init__(self):
         self.items = [
             'oldname', 'authors', 'genres',
@@ -293,7 +294,7 @@ class Book_fb2(Book):
 def format_name(a_book, _format):
     result = _format
     for ptrn in format_patterns:
-        re_ptrn = '%' + ptrn +'.*%'
+        re_ptrn = '%' + ptrn + '.*%'
         ptrn_found = re.search(re_ptrn, result)
         while ptrn_found:
             pf_str = ptrn_found.group(0)
@@ -312,9 +313,9 @@ def main():
     parser.add_argument(
         '--format', '-f', dest='format', action='store',
         default='%title%',
-        help='Format of the new name. Possble values are: ' + \
-        ', '.join(format_patterns) + \
-        'Author name could be formated with #F/M/L like #First/Middle/Last name.' \
+        help='Format of the new name. Possble values are: ' +
+        ', '.join(format_patterns) +
+        'Author name could be formated with #F/M/L like #First/Middle/Last name.'
     )
     parser.add_argument(
         '--dry-run', '-d', dest='dryrun', action='store_true',
