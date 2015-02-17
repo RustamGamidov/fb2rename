@@ -4,6 +4,7 @@
 import os
 import argparse
 import sys
+import re
 from time import strftime, strptime
 
 from lxml import etree
@@ -127,11 +128,17 @@ class Book(object):
         self.format = ''
 
     @staticmethod
-    def format_person_name(a_first, a_middle, a_last):
+    def format_person_name(a_first, a_middle, a_last, a_format='#L, #F #M'):
         if not a_first and not a_last and not a_middle:
             raise Exception("There's no author")
-        result = ', '.join([a_last, ' '.join([a_first, a_middle])])
-        return result
+        result = a_format
+        result = result.replace('#L', a_last)
+        result = result.replace('#l', a_last[0])
+        result = result.replace('#M', a_middle)
+        result = result.replace('#m', a_middle[0])
+        result = result.replace('#F', a_first)
+        result = result.replace('#f', a_first[0])
+        return result.strip()
 
     def open_virtual(self, a_path):
         raise NotImplementedError('virtual function')
@@ -146,9 +153,7 @@ class Book(object):
         raise NotImplementedError('virtual function')
 
     def get_value(self, a_item):
-        if a_item in self.items:
-            return self.get_value_virtual(a_item)
-        return []
+        return self.get_value_virtual(a_item)
 
     def get_oldname(self):
         if self.filepath:
@@ -197,22 +202,25 @@ class Book_fb2(Book):
         pass
 
     @staticmethod
-    def get_person_name(a_element):
+    def get_person_name(a_element, a_format):
         try:
             fname = XmlWrapper.get_tag_value(a_element, 'first-name')
         except:
-            fname = ''
+            fname = ' '
         try:
             lname = XmlWrapper.get_tag_value(a_element, 'last-name')
         except:
-            lname = ''
+            lname = ' '
         try:
             mname = XmlWrapper.get_tag_value(a_element, 'middle-name')
         except:
-            mname = ''
-        return Book.format_person_name(fname, mname, lname)
+            mname = ' '
+        return Book.format_person_name(fname, mname, lname, a_format)
 
-    def get_authors(self):
+    def get_authors(self, _format):
+        author_format = _format.replace('authors', '').strip()
+        if not author_format:
+            author_format = '#L, #F #M'
         authors_tag = XmlWrapper.get_multitag_by_path(
             self.book, self.title_tags['authors'])
         if not authors_tag:
@@ -220,7 +228,7 @@ class Book_fb2(Book):
             return ''
         authors = []
         for tag in authors_tag:
-            author = self.get_person_name(tag)
+            author = self.get_person_name(tag, author_format)
             if author is not None:
                 authors.append(author)
         return '. '.join(authors)
@@ -248,8 +256,8 @@ class Book_fb2(Book):
 
     def get_value_virtual(self, a_item):
         value = ''
-        if a_item == 'authors':
-            value = self.get_authors()
+        if re.match('authors', a_item):
+            value = self.get_authors(a_item)
         elif a_item == 'sequence':
             value = self.get_sequence()
         elif a_item == 'seq_name':
@@ -285,10 +293,13 @@ class Book_fb2(Book):
 def format_name(a_book, _format):
     result = _format
     for ptrn in format_patterns:
-        if ptrn in _format:
-            value = a_book.get_value(ptrn)
-            if value is not None:
-                result = result.replace('%' + ptrn + '%', value)
+        re_ptrn = '%' + ptrn +'.*%'
+        ptrn_found = re.search(re_ptrn, result)
+        while ptrn_found:
+            pf_str = ptrn_found.group(0)
+            value = a_book.get_value(pf_str.replace('%', ''))
+            result = re.sub(re_ptrn, value, result, 1)
+            ptrn_found = re.search(re_ptrn, result)
     return result
 
 
