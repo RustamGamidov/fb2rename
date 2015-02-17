@@ -312,7 +312,10 @@ def main():
     parser.add_argument(
         '--format', '-f', dest='format', action='store',
         default='%title%',
-        help='Format of the new name. Possble values are: ' + ', '.join(format_patterns))
+        help='Format of the new name. Possble values are: ' + \
+        ', '.join(format_patterns) + \
+        'Author name could be formated with #F/M/L like #First/Middle/Last name.' \
+    )
     parser.add_argument(
         '--dry-run', '-d', dest='dryrun', action='store_true',
         default=False,
