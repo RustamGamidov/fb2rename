@@ -46,10 +46,18 @@ class CommonTest(unittest.TestCase):
             msg = sys.exc_info()[0]
             self.assertTrue(False, msg)
 
+
     def test_replace_returnsSameLine_whenAskedCharsAreNotPresent(self):
         str_to_check = 'lineFlineZanother23sadfF'
         str_result = Common.replace(str_to_check, '!^%$', '_')
         self.assertEqual(str_to_check, str_result)
+
+
+    def test_replace_returnedStrippedLine(self):
+        str_to_check = ' asd asa '
+        str_reference = 'asd asa'
+        str_result = Common.replace(str_to_check, '', '')
+        self.assertEqual(str_reference, str_result)
 
 
     def test_replace_replaceAnyAskedCharWithTheGivenOne_whenAskedCharsArePresent(self):
