@@ -47,6 +47,31 @@ class CommonTest(unittest.TestCase):
             self.assertTrue(False, msg)
 
 
+    def test_ensurePathExists_doesNotThrow_whenPathIsNone(self):
+        try:
+            Common.ensure_path_exists(None)
+        except:
+            msg = sys.exc_info()[0]
+            self.assertTrue(False, msg)
+
+
+    def test_ensurePathExists_doesNotThrow_whenPathIsEmpty(self):
+        try:
+            Common.ensure_path_exists('')
+        except:
+            msg = sys.exc_info()[0]
+            self.assertTrue(False, msg)
+
+
+    @unittest.skip('requires code change')
+    def test_ensurePathExists_doesNothing_whenPathIsWhitespace(self):
+        try:
+            Common.ensure_path_exists(' ')
+        except:
+            msg = sys.exc_info()[0]
+            self.assertTrue(False, msg)
+
+
     def test_replace_returnsSameLine_whenAskedCharsAreNotPresent(self):
         str_to_check = 'lineFlineZanother23sadfF'
         str_result = Common.replace(str_to_check, '!^%$', '_')
