@@ -47,29 +47,24 @@ class CommonTest(unittest.TestCase):
             self.assertTrue(False, msg)
 
 
-    def test_ensurePathExists_doesNotThrow_whenPathIsNone(self):
-        try:
-            Common.ensure_path_exists(None)
-        except:
-            msg = sys.exc_info()[0]
-            self.assertTrue(False, msg)
-
-
-    def test_ensurePathExists_doesNotThrow_whenPathIsEmpty(self):
-        try:
-            Common.ensure_path_exists('')
-        except:
-            msg = sys.exc_info()[0]
-            self.assertTrue(False, msg)
+    @unittest.skip('requires code change')
+    def test_ensurePathExists_throws_whenPathIsNone(self):
+        self.assertRaises(Exception, Common.ensure_path_exists, None)
 
 
     @unittest.skip('requires code change')
-    def test_ensurePathExists_doesNothing_whenPathIsWhitespace(self):
-        try:
-            Common.ensure_path_exists(' ')
-        except:
-            msg = sys.exc_info()[0]
-            self.assertTrue(False, msg)
+    def test_ensurePathExists_throws_whenPathIsEmpty(self):
+        self.assertRaises(Exception, Common.ensure_path_exists, '')
+
+
+    @unittest.skip('requires code change')
+    def test_ensurePathExists_throws_whenPathIsWhitespace(self):
+        self.assertRaises(Exception, Common.ensure_path_exists, ' ')
+
+
+    def test_ensurePathExists_throws_whenPathIsNotString(self):
+        self.assertRaises(Exception, Common.ensure_path_exists, 17)
+        self.assertRaises(Exception, Common.ensure_path_exists, ['e', 'werw'])
 
 
     def test_replace_returnsSameLine_whenAskedCharsAreNotPresent(self):
