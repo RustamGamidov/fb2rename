@@ -22,9 +22,13 @@ class Common(object):
 
     @staticmethod
     def ensure_path_exists(path):
-        if path:
-            if not os.path.exists(path):
-                os.makedirs(path)
+        if not isinstance(path, str):
+            raise TypeError
+        path = path.strip()
+        if not path:
+            raise ValueError
+        if not os.path.exists(path):
+            os.makedirs(path)
 
     @staticmethod
     def replace(a_str, a_forbidden, a_char):

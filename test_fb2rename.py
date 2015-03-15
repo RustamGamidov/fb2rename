@@ -47,17 +47,14 @@ class CommonTest(unittest.TestCase):
             self.assertTrue(False, msg)
 
 
-    @unittest.skip('requires code change')
     def test_ensurePathExists_throws_whenPathIsNone(self):
         self.assertRaises(Exception, Common.ensure_path_exists, None)
 
 
-    @unittest.skip('requires code change')
     def test_ensurePathExists_throws_whenPathIsEmpty(self):
         self.assertRaises(Exception, Common.ensure_path_exists, '')
 
 
-    @unittest.skip('requires code change')
     def test_ensurePathExists_throws_whenPathIsWhitespace(self):
         self.assertRaises(Exception, Common.ensure_path_exists, ' ')
 
