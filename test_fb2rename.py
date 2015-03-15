@@ -13,16 +13,15 @@ global_test_workspace = '/tmp/fb2rename_test_workspace'
 
 class CommonTest(unittest.TestCase):
     @classmethod
-    def setUpClass(self):
+    def setUp(self):
         global global_test_workspace
         if global_test_workspace:
             if os.path.exists(global_test_workspace):
                 shutil.rmtree(global_test_workspace)
             os.makedirs(global_test_workspace)
 
-
     @classmethod
-    def tearDownClass(self):
+    def tearDown(self):
         global global_test_workspace
         if global_test_workspace:
             shutil.rmtree(global_test_workspace)
