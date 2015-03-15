@@ -19,9 +19,13 @@ class CommonTest(unittest.TestCase):
             if os.path.exists(global_test_workspace):
                 shutil.rmtree(global_test_workspace)
             os.makedirs(global_test_workspace)
+        self.old_dir = os.getcwd()
+        os.chdir(global_test_workspace)
+
 
     @classmethod
     def tearDown(self):
+        os.chdir(self.old_dir)
         global global_test_workspace
         if global_test_workspace:
             shutil.rmtree(global_test_workspace)
