@@ -22,11 +22,10 @@ class Common(object):
 
     @staticmethod
     def ensure_path_exists(path):
-        if not isinstance(path, str):
+        if not isinstance(path, str) and \
+            not isinstance(path, unicode):
             raise TypeError
-        path = path.strip()
-        if not path:
-            raise ValueError
+        path = os.path.realpath(path.strip())
         if not os.path.exists(path):
             os.makedirs(path)
 

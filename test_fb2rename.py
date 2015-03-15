@@ -46,20 +46,27 @@ class CommonTest(unittest.TestCase):
         try:
             Common.ensure_path_exists(path2check)
         except:
-            msg = sys.exc_info()[0]
-            self.assertTrue(False, msg)
+            self.assertTrue(False, sys.exc_info()[0])
 
 
     def test_ensurePathExists_throws_whenPathIsNone(self):
         self.assertRaises(Exception, Common.ensure_path_exists, None)
 
 
-    def test_ensurePathExists_throws_whenPathIsEmpty(self):
-        self.assertRaises(Exception, Common.ensure_path_exists, '')
+    def test_ensurePathExists_doesNotThrow_whenPathIsEmpty(self):
+        try:
+            Common.ensure_path_exists('')
+            Common.ensure_path_exists(u'')
+        except:
+            self.assertTrue(False, sys.exc_info()[0])
 
 
-    def test_ensurePathExists_throws_whenPathIsWhitespace(self):
-        self.assertRaises(Exception, Common.ensure_path_exists, ' ')
+    def test_ensurePathExists_doesNotThrow_whenPathIsWhitespace(self):
+        try:
+            Common.ensure_path_exists(' ')
+            Common.ensure_path_exists(u' ')
+        except:
+            self.assertTrue(False, sys.exc_info()[0])
 
 
     def test_ensurePathExists_throws_whenPathIsNotString(self):
