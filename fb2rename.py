@@ -297,7 +297,7 @@ class Book_fb2(Book):
 def format_name(a_book, _format):
     result = _format
     for ptrn in format_patterns:
-        re_ptrn = '%' + ptrn + '.*%'
+        re_ptrn = '%' + ptrn + '.*?%'
         ptrn_found = re.search(re_ptrn, result)
         while ptrn_found:
             pf_str = ptrn_found.group(0)
