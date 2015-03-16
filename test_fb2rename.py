@@ -12,6 +12,12 @@ global_test_workspace = '/tmp/fb2rename_test_workspace'
 
 
 class CommonTest(unittest.TestCase):
+    str_ch = r"lineOnlyWithCharachters"
+    str_chNums = r"0line2Only7WithChara3456chters0"
+    str_chUndr = r"_line_Only_WithChara____chters_"
+    str_chSymb = r"&line%Only#WithChara4(&;chters)"
+
+
     @classmethod
     def setUp(self):
         global global_test_workspace
@@ -74,32 +80,32 @@ class CommonTest(unittest.TestCase):
         self.assertRaises(Exception, Common.ensure_path_exists, ['e', 'werw'])
 
 
-    def test_replace_returnsSameLine_whenAskedCharsIsEmpty(self):
-        str_to_check = 'lineFlineZanother23sadfF'
-        str_result = Common.replace(str_to_check, '', '_')
-        self.assertEqual(str_to_check, str_result)
+    def test_replace_returnsSameLine_whenAskedCharsAreEmpty(self):
+        str_result = Common.replace(self.str_ch, '', '_')
+        self.assertEqual(self.str_ch, str_result)
 
 
     def test_replace_returnsSameLine_whenAskedCharsAreNotPresent(self):
-        str_to_check = 'lineFlineZanother23sadfF'
-        str_result = Common.replace(str_to_check, '!^%$', '_')
-        self.assertEqual(str_to_check, str_result)
+        str_result = Common.replace(self.str_ch, '!^%$', '_')
+        self.assertEqual(self.str_ch, str_result)
 
 
-    def test_replace_returnedStrippedLine(self):
-        str_to_check = ' asd asa '
-        str_reference = 'asd asa'
+    def test_replace_returnedStrippedLine_whenForbiddenCharsAreEmpty(self):
+        str_to_check = ' \t  ' + self.str_ch + '   \t'
         str_result = Common.replace(str_to_check, '', '')
-        self.assertEqual(str_reference, str_result)
+        self.assertEqual(self.str_ch, str_result)
+
+
+    def test_replace_returnedStrippedLine_whenForbiddenCharsAreNotEmpty(self):
+        str_to_check = ' \t  ' + self.str_chUndr + '   \t'
+        str_result = Common.replace(str_to_check, '_', '')
+        self.assertEqual(self.str_ch, str_result)
 
 
     def test_replace_replaceAnyAskedCharWithTheGivenOne_whenAskedCharsArePresent(self):
-        str_to_check = 'lineFlineZanother23sadfF'
-        str_reference = 'line_line_another_3sadf_'
-        str_forbidden = 'FZ2'
-        char_to_insert = '_'
-        str_result = Common.replace(str_to_check, str_forbidden, char_to_insert)
-        self.assertEqual(str_result, str_reference)
+        str_forbidden = '&()#4;%'
+        str_result = Common.replace(self.str_chSymb, str_forbidden, '_')
+        self.assertEqual(self.str_chUndr, str_result)
 
 
 if __name__ == '__main__':
