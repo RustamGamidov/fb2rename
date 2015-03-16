@@ -74,6 +74,12 @@ class CommonTest(unittest.TestCase):
         self.assertRaises(Exception, Common.ensure_path_exists, ['e', 'werw'])
 
 
+    def test_replace_returnsSameLine_whenAskedCharsIsEmpty(self):
+        str_to_check = 'lineFlineZanother23sadfF'
+        str_result = Common.replace(str_to_check, '', '_')
+        self.assertEqual(str_to_check, str_result)
+
+
     def test_replace_returnsSameLine_whenAskedCharsAreNotPresent(self):
         str_to_check = 'lineFlineZanother23sadfF'
         str_result = Common.replace(str_to_check, '!^%$', '_')
