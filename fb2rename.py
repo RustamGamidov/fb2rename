@@ -345,7 +345,9 @@ def main():
             except:
                 errors[fname] = sys.exc_info()[1]
 
-    print 'Errors: ', errors
+    print 'Errors: '
+    for e in errors:
+        print '  ' + e + ':', errors[e]
 
 
 if __name__ == '__main__':
