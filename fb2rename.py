@@ -15,6 +15,15 @@ format_patterns = [
 ]
 
 
+def get_templates():
+    templates = {}
+    templates['simple_flat'] = r'%title%'
+    templates['flat'] = r'%authors% - %title%'
+    templates['sequence'] = r'%seq_name%\%seq_number%. %title%'
+    templates['default'] = templates['flat']
+    return templates
+
+
 class Common(object):
     replace_single_quote = ['"', u"\u00BB", u"\u00AB"]
     replace_underscore = [u'…']
@@ -315,10 +324,15 @@ def main():
         help='name of the files to rename')
     parser.add_argument(
         '--format', '-f', dest='format', action='store',
-        default='%title%',
         help='Format of the new name. Possble values are: ' +
-        ', '.join(format_patterns) +
+        ', '.join(format_patterns) + '.\n' +
         'Author name could be formated with #F/M/L like #First/Middle/Last name.'
+    )
+    parser.add_argument(
+        '--template', '-t', metavar='template', action='store',
+        default='default',
+        help='Predefined formats. Possble value are: ' +
+        ', '.join(get_templates()) + '.'
     )
     parser.add_argument(
         '--dry-run', '-d', dest='dryrun', action='store_true',
@@ -328,22 +342,29 @@ def main():
 
     errors = {}
     book = Book_fb2()
-    for fname in args.fname:
-        try:
-            book.open(fname)
-            name = format_name(book, args.format)
-            name = unicode(Common.validate_filename(name + '.fb2'))
-        except:
-            errors[fname] = sys.exc_info()[1]
-            continue
-        name = name.strip('\n ')
-        print fname, ' => ', name
-        if not args.dryrun:
+    templates = get_templates()
+    if not args.template in templates:
+        errors['template'] = 'No such template: ' + args.template
+    else:
+        name_format = templates[args.template]
+        if args.format:
+            name_format = args.format
+        for fname in args.fname:
             try:
-                Common.ensure_path_exists(os.path.dirname(name))
-                os.rename(fname, name)
+                book.open(fname)
+                name = format_name(book, name_format)
+                name = unicode(Common.validate_filename(name + '.fb2'))
             except:
                 errors[fname] = sys.exc_info()[1]
+                continue
+            name = name.strip('\n ')
+            print fname, ' => ', name
+            if not args.dryrun:
+                try:
+                    Common.ensure_path_exists(os.path.dirname(name))
+                    os.rename(fname, name)
+                except:
+                    errors[fname] = sys.exc_info()[1]
 
     print 'Errors: '
     for e in errors:
