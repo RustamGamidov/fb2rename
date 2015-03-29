@@ -108,5 +108,9 @@ class CommonTest(unittest.TestCase):
         self.assertEqual(self.str_chUndr, str_result)
 
 
+    def test_getTemplates_returnsDictWithDefaultKey(self):
+        self.assertTrue('default' in Common.get_templates())
+
+
 if __name__ == '__main__':
     unittest.main()
