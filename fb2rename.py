@@ -15,15 +15,6 @@ format_patterns = [
 ]
 
 
-def get_templates():
-    templates = {}
-    templates['simple_flat'] = r'%title%'
-    templates['flat'] = r'%authors% - %title%'
-    templates['sequence'] = r'%seq_name%\%seq_number%. %title%'
-    templates['default'] = templates['flat']
-    return templates
-
-
 class Common(object):
     replace_single_quote = ['"', u"\u00BB", u"\u00AB"]
     replace_underscore = [u'…']
@@ -66,6 +57,15 @@ class Common(object):
         result = Common.validate_common(a_tag)
         result = Common.replace(result, ['\\', '/'], '.')
         return result
+
+    @staticmethod
+    def get_templates():
+        templates = {}
+        templates['simple_flat'] = r'%title%'
+        templates['flat']        = r'%authors% - %title%'
+        templates['sequence']    = r'%seq_name%\%seq_number%. %title%'
+        templates['default']     = templates['flat']
+        return templates
 
 
 class XmlWrapper(object):
@@ -332,7 +332,7 @@ def main():
         '--template', '-t', metavar='template', action='store',
         default='default',
         help='Predefined formats. Possble value are: ' +
-        ', '.join(get_templates()) + '.'
+        ', '.join(Common.get_templates()) + '.'
     )
     parser.add_argument(
         '--dry-run', '-d', dest='dryrun', action='store_true',
@@ -342,7 +342,7 @@ def main():
 
     errors = {}
     book = Book_fb2()
-    templates = get_templates()
+    templates = Common.get_templates()
     if not args.template in templates:
         errors['template'] = 'No such template: ' + args.template
     else:
