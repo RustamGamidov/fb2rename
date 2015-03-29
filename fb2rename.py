@@ -6,13 +6,7 @@ import argparse
 import sys
 import re
 from time import strftime, strptime
-
 from lxml import etree
-
-format_patterns = [
-    'authors', 'title', 'date', 'sequence', 'seq_name', 'seq_number', 'genre',
-    'oldname', 'year'
-]
 
 
 class Common(object):
@@ -67,6 +61,12 @@ class Common(object):
         templates['default']     = templates['flat']
         return templates
 
+
+    @staticmethod
+    def get_format_patterns():
+        return ['authors', 'title', 'date', 'sequence',
+            'seq_name', 'seq_number', 'genre', 'oldname', 'year'
+            ]
 
 class XmlWrapper(object):
 
@@ -305,7 +305,7 @@ class Book_fb2(Book):
 
 def format_name(a_book, _format):
     result = _format
-    for ptrn in format_patterns:
+    for ptrn in Common.get_format_patterns():
         re_ptrn = '%' + ptrn + '.*?%'
         ptrn_found = re.search(re_ptrn, result)
         while ptrn_found:
@@ -325,7 +325,7 @@ def main():
     parser.add_argument(
         '--format', '-f', dest='format', action='store',
         help='Format of the new name. Possble values are: ' +
-        ', '.join(format_patterns) + '.\n' +
+        ', '.join(Common.get_format_patterns()) + '.\n' +
         'Author name could be formated with #F/M/L like #First/Middle/Last name.'
     )
     parser.add_argument(
