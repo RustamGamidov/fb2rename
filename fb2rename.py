@@ -55,10 +55,11 @@ class Common(object):
     @staticmethod
     def get_templates():
         templates = {}
-        templates['simple_flat'] = r'%title%'
-        templates['flat']        = r'%authors% - %title%'
-        templates['sequence']    = r'%seq_name%\%seq_number%. %title%'
-        templates['default']     = templates['flat']
+        templates['simple_flat']    = r'%title%'
+        templates['flat']           = r'%authors% - %title%'
+        templates['sequence']       = r'%seq_name%\%seq_number%. %title%'
+        templates['sequence_flat']  = r'%seq_name% - %seq_number%. %title%'
+        templates['default']        = templates['flat']
         return templates
 
 
