@@ -5,10 +5,8 @@ import unittest
 import shutil
 import os
 import sys
+import tempfile
 from fb2rename import *
-
-
-global_test_workspace = '/tmp/fb2rename_test_workspace'
 
 
 class CommonTest(unittest.TestCase):
@@ -20,32 +18,25 @@ class CommonTest(unittest.TestCase):
 
     @classmethod
     def setUp(self):
-        global global_test_workspace
-        if global_test_workspace:
-            if os.path.exists(global_test_workspace):
-                shutil.rmtree(global_test_workspace)
-            os.makedirs(global_test_workspace)
-        self.old_dir = os.getcwd()
-        os.chdir(global_test_workspace)
+        self.tmpdir = tempfile.mkdtemp(prefix=os.path.basename(__file__))
+        os.chdir(self.tmpdir)
 
 
     @classmethod
     def tearDown(self):
-        os.chdir(self.old_dir)
-        global global_test_workspace
-        if global_test_workspace:
-            shutil.rmtree(global_test_workspace)
+        if os.path.exists(self.tmpdir):
+            shutil.rmtree(self.tmpdir)
 
 
     def test_ensurePathExists_createsAskedPath(self):
-        path2check = os.path.join(global_test_workspace, 'dir1', 'dir2', 'dir3')
+        path2check = os.path.join(self.tmpdir, 'dir1', 'dir2', 'dir3')
         self.assertFalse(os.path.exists(path2check))
         Common.ensure_path_exists(path2check)
         self.assertTrue(os.path.exists(path2check))
 
 
     def test_ensurePathExists_doesNotThrow_whenPathExists(self):
-        path2check = os.path.join(global_test_workspace, 'dir1', 'dir2', 'dir3')
+        path2check = os.path.join(self.tmpdir, 'dir1', 'dir2', 'dir3')
         Common.ensure_path_exists(path2check)
         self.assertTrue(os.path.exists(path2check))
         msg = ''
