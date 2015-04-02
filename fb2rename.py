@@ -317,6 +317,17 @@ def format_name(a_book, _format):
     return result
 
 
+def get_files_to_work_with(a_files=[], a_types=[], a_path=os.getcwd()):
+    if not isinstance(a_types, list):
+        return []
+    if not isinstance(a_path, str) or not isinstance(a_path, unicode):
+        return []
+    if not os.path.isdir(a_path):
+        return []
+    result = ['file']
+    return result
+
+
 def main():
     parser = argparse.ArgumentParser(
         description='Renames given single fb2 file using pattern.')

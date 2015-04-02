@@ -9,6 +9,12 @@ import tempfile
 from fb2rename import *
 
 
+def get_files(a_path=os.getcwd()):
+    lsdir = os.listdir(a_path)
+    lsdir = [f for f in lsdir if os.path.isfile(f)]
+    return lsdir
+
+
 class CommonTest(unittest.TestCase):
     str_ch = r"lineOnlyWithCharachters"
     str_chNums = r"0line2Only7WithChara3456chters0"
@@ -101,6 +107,66 @@ class CommonTest(unittest.TestCase):
 
     def test_getTemplates_returnsDictWithDefaultKey(self):
         self.assertTrue('default' in Common.get_templates())
+
+
+class GetFilesToWorkWith(unittest.TestCase):
+    dir_not_exists = 'not_exists'
+
+
+    @classmethod
+    def setUpClass(self):
+        def create_files(a_path):
+            open(os.path.join(a_path, 'file1.fb2'), 'a').close()
+            open(os.path.join(a_path, 'file2.fb2'), 'a').close()
+            open(os.path.join(a_path, 'file3.fb2.zip'), 'a').close()
+            open(os.path.join(a_path, 'file4.rar'), 'a').close()
+            open(os.path.join(a_path, 'file5.zip'), 'a').close()
+            open(os.path.join(a_path, 'file6.txt'), 'a').close()
+            open(os.path.join(a_path, 'file7.avi'), 'a').close()
+
+        self.tmpdir = tempfile.mkdtemp(prefix=os.path.basename(__file__))
+        create_files(self.tmpdir)
+        os.mkdir(os.path.join(self.tmpdir, 'dir1'))
+        create_files(os.path.join(self.tmpdir, 'dir1'))
+        os.mkdir(os.path.join(self.tmpdir, 'dir2'))
+        create_files(os.path.join(self.tmpdir, 'dir2'))
+        os.chdir(self.tmpdir)
+
+
+    @classmethod
+    def tearDownClass(self):
+        if os.path.exists(self.tmpdir):
+            shutil.rmtree(self.tmpdir)
+
+
+    def test_returnEmptyList_whenArgumentsAreDefault(self):
+        files = get_files_to_work_with()
+        self.assertEqual(0, len(files))
+
+
+    def test_returnsEmptyList_whenTypesArgumentIsEmpty(self):
+        files = get_files_to_work_with(get_files(), [], self.tmpdir)
+        self.assertEqual(0, len(files))
+
+
+    def test_returnsEmptyList_whenTypesArgumentIsNone(self):
+        files = get_files_to_work_with(get_files(), None, self.tmpdir)
+        self.assertEqual(0, len(files))
+
+
+    def test_returnsEmptyList_whenTypesArgumentIsNotList(self):
+        files = get_files_to_work_with(get_files(), 'not_list', self.tmpdir)
+        self.assertEqual(0, len(files))
+
+
+    def test_returnEmptyList_whenPathParameterIsNotDir(self):
+        files = get_files_to_work_with(get_files(), ['fb2', 'fb2.zip'], self.dir_not_exists)
+        self.assertEqual(0, len(files))
+
+
+    def test_returnEmptyList_whenPathParameterIsNone(self):
+        files = get_files_to_work_with(get_files(), ['fb2', 'fb2.zip'], None)
+        self.assertEqual(0, len(files))
 
 
 if __name__ == '__main__':
