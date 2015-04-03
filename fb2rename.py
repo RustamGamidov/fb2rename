@@ -320,11 +320,19 @@ def format_name(a_book, _format):
 def get_files_to_work_with(a_files=[], a_types=[], a_path=os.getcwd()):
     if not isinstance(a_types, list):
         return []
-    if not isinstance(a_path, str) or not isinstance(a_path, unicode):
+    if not isinstance(a_path, str) and not isinstance(a_path, unicode):
         return []
     if not os.path.isdir(a_path):
         return []
-    result = ['file']
+    result = []
+    candidates = []
+    candidates.extend(a_files)
+    for f in candidates:
+        _, fext = os.path.splitext(f)
+        if fext[0] == '.':
+            fext = fext[1:]
+        if fext in a_types:
+            result.append(f)
     return result
 
 

@@ -9,9 +9,11 @@ import tempfile
 from fb2rename import *
 
 
-def get_files(a_path=os.getcwd()):
+def get_files(a_path=os.getcwd(), a_abspath=True):
     lsdir = os.listdir(a_path)
     lsdir = [f for f in lsdir if os.path.isfile(f)]
+    if a_abspath:
+        lsdir = [os.path.abspath(f) for f in lsdir]
     return lsdir
 
 
@@ -111,7 +113,7 @@ class CommonTest(unittest.TestCase):
 
 class GetFilesToWorkWith(unittest.TestCase):
     dir_not_exists = 'not_exists'
-
+    ref = {}
 
     @classmethod
     def setUpClass(self):
@@ -124,6 +126,9 @@ class GetFilesToWorkWith(unittest.TestCase):
             open(os.path.join(a_path, 'file6.txt'), 'a').close()
             open(os.path.join(a_path, 'file7.avi'), 'a').close()
 
+        def create_refs():
+            self.ref['fb2_flat_root'] = [os.path.join(self.tmpdir, 'file1.fb2'), os.path.join(self.tmpdir, 'file2.fb2')]
+
         self.tmpdir = tempfile.mkdtemp(prefix=os.path.basename(__file__))
         create_files(self.tmpdir)
         os.mkdir(os.path.join(self.tmpdir, 'dir1'))
@@ -131,6 +136,7 @@ class GetFilesToWorkWith(unittest.TestCase):
         os.mkdir(os.path.join(self.tmpdir, 'dir2'))
         create_files(os.path.join(self.tmpdir, 'dir2'))
         os.chdir(self.tmpdir)
+        create_refs()
 
 
     @classmethod
@@ -159,14 +165,19 @@ class GetFilesToWorkWith(unittest.TestCase):
         self.assertEqual(0, len(files))
 
 
-    def test_returnEmptyList_whenPathParameterIsNotDir(self):
+    def test_returnEmptyList_whenPathArgumentIsNotDir(self):
         files = get_files_to_work_with(get_files(), ['fb2', 'fb2.zip'], self.dir_not_exists)
         self.assertEqual(0, len(files))
 
 
-    def test_returnEmptyList_whenPathParameterIsNone(self):
+    def test_returnEmptyList_whenPathArgumentIsNone(self):
         files = get_files_to_work_with(get_files(), ['fb2', 'fb2.zip'], None)
         self.assertEqual(0, len(files))
+
+
+    def test_returnProperValues_whenTypesArgumentContainsOneItem(self):
+        files = get_files_to_work_with(get_files(os.getcwd()), ['fb2'], self.tmpdir)
+        self.assertEqual(sorted(self.ref['fb2_flat_root']), sorted(files))
 
 
 if __name__ == '__main__':
