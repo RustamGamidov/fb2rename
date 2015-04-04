@@ -117,26 +117,17 @@ class GetFilesToWorkWith(unittest.TestCase):
 
     @classmethod
     def setUpClass(self):
-        def create_files(a_path):
-            open(os.path.join(a_path, 'file1.fb2'), 'a').close()
-            open(os.path.join(a_path, 'file2.fb2'), 'a').close()
-            open(os.path.join(a_path, 'file3.fb2.zip'), 'a').close()
-            open(os.path.join(a_path, 'file4.rar'), 'a').close()
-            open(os.path.join(a_path, 'file5.zip'), 'a').close()
-            open(os.path.join(a_path, 'file6.txt'), 'a').close()
-            open(os.path.join(a_path, 'file7.avi'), 'a').close()
-
         def create_refs():
             self.ref['fb2_flat_root'] = [os.path.join(self.tmpdir, 'file1.fb2'), os.path.join(self.tmpdir, 'file2.fb2')]
             self.ref['fb2rar_flat_root'] = [os.path.join(self.tmpdir, 'file1.fb2'), os.path.join(self.tmpdir, 'file2.fb2'), os.path.join(self.tmpdir, 'file4.rar')]
             self.ref['fb2fb2zip_flat_root'] = [os.path.join(self.tmpdir, 'file1.fb2'), os.path.join(self.tmpdir, 'file2.fb2'), os.path.join(self.tmpdir, 'file3.fb2.zip')]
 
         self.tmpdir = tempfile.mkdtemp(prefix=os.path.basename(__file__))
-        create_files(self.tmpdir)
-        os.mkdir(os.path.join(self.tmpdir, 'dir1'))
-        create_files(os.path.join(self.tmpdir, 'dir1'))
-        os.mkdir(os.path.join(self.tmpdir, 'dir2'))
-        create_files(os.path.join(self.tmpdir, 'dir2'))
+
+        ref_dirs = [self.tmpdir, os.path.join(self.tmpdir, 'dir1'), os.path.join(self.tmpdir, 'dir2')]
+        files = self.get_ref(ref_dirs, ['fb2', 'fb2.zip', 'rar', 'zip', 'txt', 'avi'])
+        for f in files:
+            open(f, 'a').close()
         os.chdir(self.tmpdir)
         create_refs()
 
@@ -145,6 +136,35 @@ class GetFilesToWorkWith(unittest.TestCase):
     def tearDownClass(self):
         if os.path.exists(self.tmpdir):
             shutil.rmtree(self.tmpdir)
+
+    @classmethod
+    def get_ref_files(self, a_types):
+        result = []
+        if 'fb2' in a_types:
+            result.append('file1.fb2')
+            result.append('file2.fb2')
+        if 'fb2.zip' in a_types:
+            result.append('file3.fb2.zip')
+        if 'rar' in a_types:
+            result.append('file4.rar')
+        if 'zip' in a_types:
+            result.append('file5.zip')
+        if 'txt' in a_types:
+            result.append('file6.txt')
+        if 'avi' in a_types:
+            result.append('file7.avi')
+        return result
+
+
+    @classmethod
+    def get_ref(self, a_dirs, a_types):
+        result = []
+        files = self.get_ref_files(a_types)
+        for d in a_dirs:
+            if not os.path.exists(d):
+                os.mkdir(d)
+            result.extend([os.path.join(d,t) for t in files])
+        return result
 
 
     def test_returnEmptyList_whenArgumentsAreDefault(self):
