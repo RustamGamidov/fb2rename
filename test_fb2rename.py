@@ -128,6 +128,8 @@ class GetFilesToWorkWith(unittest.TestCase):
 
         def create_refs():
             self.ref['fb2_flat_root'] = [os.path.join(self.tmpdir, 'file1.fb2'), os.path.join(self.tmpdir, 'file2.fb2')]
+            self.ref['fb2rar_flat_root'] = [os.path.join(self.tmpdir, 'file1.fb2'), os.path.join(self.tmpdir, 'file2.fb2'), os.path.join(self.tmpdir, 'file4.rar')]
+            self.ref['fb2fb2zip_flat_root'] = [os.path.join(self.tmpdir, 'file1.fb2'), os.path.join(self.tmpdir, 'file2.fb2'), os.path.join(self.tmpdir, 'file3.fb2.zip')]
 
         self.tmpdir = tempfile.mkdtemp(prefix=os.path.basename(__file__))
         create_files(self.tmpdir)
@@ -178,6 +180,16 @@ class GetFilesToWorkWith(unittest.TestCase):
     def test_returnProperValues_whenTypesArgumentContainsOneItem(self):
         files = get_files_to_work_with(get_files(os.getcwd()), ['fb2'], self.tmpdir)
         self.assertEqual(sorted(self.ref['fb2_flat_root']), sorted(files))
+
+
+    def test_returnProperValues_whenTypesArgumentContainsExistingTypes(self):
+        files = get_files_to_work_with(get_files(os.getcwd()), ['fb2', 'rar'], self.tmpdir)
+        self.assertEqual(sorted(self.ref['fb2rar_flat_root']), sorted(files))
+
+
+    def test_returnProperValues_whenTypesArgumentContainsDoubledExtension(self):
+        files = get_files_to_work_with(get_files(os.getcwd()), ['fb2', 'fb2.zip'], self.tmpdir)
+        self.assertEqual(sorted(self.ref['fb2fb2zip_flat_root']), sorted(files))
 
 
 if __name__ == '__main__':
