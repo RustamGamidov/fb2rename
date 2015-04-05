@@ -356,9 +356,17 @@ def main():
         '--dry-run', '-d', dest='dryrun', action='store_true',
         default=False,
         help='Do not rename files. Just show new names.')
+    parser.add_argument(
+        '-o', dest='out_dir', action='store',
+        default='',
+        help='Output directory')
     args = parser.parse_args()
 
     errors = {}
+    if args.out_dir and os.path.isdir(args.out_dir):
+        out_dir = args.out_dir
+    else:
+        out_dir = os.getcwd()
     book = Book_fb2()
     templates = Common.get_templates()
     if not args.template in templates:
@@ -379,6 +387,7 @@ def main():
             print fname, ' => ', name
             if not args.dryrun:
                 try:
+                    name = os.path.join(out_dir, name)
                     Common.ensure_path_exists(os.path.dirname(name))
                     os.rename(fname, name)
                 except:
