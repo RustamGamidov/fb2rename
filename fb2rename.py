@@ -380,6 +380,8 @@ def main():
             try:
                 book.open(fname)
                 name = format_name(book, name_format)
+                if not name:
+                    raise Exception('Result filename is empty')
                 name = unicode(Common.validate_filename(name + '.fb2'))
             except:
                 errors[fname] = sys.exc_info()[1]
