@@ -327,6 +327,7 @@ def get_files_to_work_with(a_files=[], a_types=[], a_path=os.getcwd()):
     result = []
     candidates = []
     candidates.extend(a_files)
+    candidates = [os.path.abspath(f) for f in candidates]
     extensions = [('.' + ext) for ext in a_types]
     for f in candidates:
         if 0 < len([e for e in extensions if f.endswith(e)]):
