@@ -208,5 +208,11 @@ class GetFilesToWorkWith(unittest.TestCase):
         self.assertEqual(sorted(ref), sorted(files))
 
 
+    def test_returnProperValues_whenTypesArgumentContainsNotExistingExtension(self):
+        files = get_files_to_work_with(get_files(os.getcwd()), ['fb2', 'ogg'], self.tmpdir)
+        ref = self.get_ref([self.tmpdir], ['fb2'])
+        self.assertEqual(sorted(ref), sorted(files))
+
+
 if __name__ == '__main__':
     unittest.main()
