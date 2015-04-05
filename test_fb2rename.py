@@ -166,22 +166,22 @@ class GetFilesToWorkWith(unittest.TestCase):
 
 
     def test_returnsEmptyList_whenTypesArgumentIsEmpty(self):
-        files = get_files_to_work_with(get_files(), [], self.tmpdir)
+        files = get_files_to_work_with(get_files(), [], [self.tmpdir])
         self.assertEqual(0, len(files))
 
 
     def test_returnsEmptyList_whenTypesArgumentIsNone(self):
-        files = get_files_to_work_with(get_files(), None, self.tmpdir)
+        files = get_files_to_work_with(get_files(), None, [self.tmpdir])
         self.assertEqual(0, len(files))
 
 
     def test_returnsEmptyList_whenTypesArgumentIsNotList(self):
-        files = get_files_to_work_with(get_files(), 'not_list', self.tmpdir)
+        files = get_files_to_work_with(get_files(), 'not_list', [self.tmpdir])
         self.assertEqual(0, len(files))
 
 
     def test_returnEmptyList_whenPathArgumentIsNotDir(self):
-        files = get_files_to_work_with(get_files(), ['fb2', 'fb2.zip'], self.dir_not_exists)
+        files = get_files_to_work_with(get_files(), ['fb2', 'fb2.zip'], [self.dir_not_exists])
         self.assertEqual(0, len(files))
 
 
@@ -191,26 +191,40 @@ class GetFilesToWorkWith(unittest.TestCase):
 
 
     def test_returnProperValues_whenTypesArgumentContainsOneItem(self):
-        files = get_files_to_work_with(get_files(os.getcwd()), ['fb2'], self.tmpdir)
+        files = get_files_to_work_with(get_files(os.getcwd()), ['fb2'], [self.tmpdir])
         ref = self.get_ref([self.tmpdir], ['fb2'])
         self.assertEqual(sorted(ref), sorted(files))
 
 
     def test_returnProperValues_whenTypesArgumentContainsExistingTypes(self):
-        files = get_files_to_work_with(get_files(os.getcwd()), ['fb2', 'rar'], self.tmpdir)
+        files = get_files_to_work_with(get_files(os.getcwd()), ['fb2', 'rar'], [self.tmpdir])
         ref = self.get_ref([self.tmpdir], ['fb2', 'rar'])
         self.assertEqual(sorted(ref), sorted(files))
 
 
     def test_returnProperValues_whenTypesArgumentContainsDoubledExtension(self):
-        files = get_files_to_work_with(get_files(os.getcwd()), ['fb2', 'fb2.zip'], self.tmpdir)
+        files = get_files_to_work_with(get_files(os.getcwd()), ['fb2', 'fb2.zip'], [self.tmpdir])
         ref = self.get_ref([self.tmpdir], ['fb2', 'fb2.zip'])
         self.assertEqual(sorted(ref), sorted(files))
 
 
     def test_returnProperValues_whenTypesArgumentContainsNotExistingExtension(self):
-        files = get_files_to_work_with(get_files(os.getcwd()), ['fb2', 'ogg'], self.tmpdir)
+        files = get_files_to_work_with(get_files(os.getcwd()), ['fb2', 'ogg'], [self.tmpdir])
         ref = self.get_ref([self.tmpdir], ['fb2'])
+        self.assertEqual(sorted(ref), sorted(files))
+
+
+    def test_getFilesFromTheArgumentPath_whenFilesArgumentIsEmpty(self):
+        files = get_files_to_work_with([], ['fb2'], [self.tmpdir])
+        ref = self.get_ref([self.tmpdir], ['fb2'])
+        self.assertEqual(sorted(ref), sorted(files))
+
+
+    def test_getFilesFromTheArgumentPath_whenFilesArgumentIsNotEmpty(self):
+        dirs_to_scan = [os.path.join(self.tmpdir, 'dir1')]
+        files = get_files_to_work_with(get_files(os.getcwd()), ['fb2'], dirs_to_scan)
+        ref = self.get_ref([self.tmpdir], ['fb2'])
+        ref.extend(self.get_ref(dirs_to_scan, ['fb2']))
         self.assertEqual(sorted(ref), sorted(files))
 
 

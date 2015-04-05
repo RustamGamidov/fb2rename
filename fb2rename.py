@@ -317,17 +317,22 @@ def format_name(a_book, _format):
     return result
 
 
-def get_files_to_work_with(a_files=[], a_types=[], a_path=os.getcwd()):
+def get_files_to_work_with(a_files=[], a_types=[], a_path=[]):
     if not isinstance(a_types, list):
         return []
-    if not isinstance(a_path, str) and not isinstance(a_path, unicode):
-        return []
-    if not os.path.isdir(a_path):
+    if not isinstance(a_path, list):
         return []
     result = []
     candidates = []
     candidates.extend(a_files)
+    for p in a_path:
+        if os.path.isdir(p):
+            lsdir = os.listdir(p)
+            lsdir = [os.path.join(p, i) for i in lsdir]
+            lsdir = [f for f in lsdir if os.path.isfile(f)]
+            candidates.extend(lsdir)
     candidates = [os.path.abspath(f) for f in candidates]
+    candidates = list(set(candidates))
     extensions = [('.' + ext) for ext in a_types]
     for f in candidates:
         if 0 < len([e for e in extensions if f.endswith(e)]):
