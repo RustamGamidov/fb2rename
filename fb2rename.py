@@ -325,6 +325,8 @@ def get_files_to_work_with(a_files=[], a_types=[], a_path=[]):
     result = []
     candidates = []
     candidates.extend(a_files)
+    if not candidates and not a_path:
+        a_path.append(os.getcwd())
     for p in a_path:
         if os.path.isdir(p):
             lsdir = os.listdir(p)
@@ -344,7 +346,7 @@ def manage_cmd():
     parser = argparse.ArgumentParser(
         description='Renames given single fb2 file using pattern.')
     parser.add_argument(
-        'fname', metavar='fb2_file_names', type=str, nargs='+',
+        'fname', metavar='fb2_file_names', type=str, nargs='*',
         help='name of the files to rename')
     parser.add_argument(
         '--format', '-f', dest='format', action='store',
@@ -385,7 +387,8 @@ def main():
         name_format = templates[args.template]
         if args.format:
             name_format = args.format
-        for fname in args.fname:
+        input_files = get_files_to_work_with(args.fname, ['fb2'])
+        for fname in input_files:
             try:
                 book.open(fname)
                 name = format_name(book, name_format)
