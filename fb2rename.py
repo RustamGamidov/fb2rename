@@ -335,7 +335,7 @@ def get_files_to_work_with(a_files=[], a_types=[], a_path=os.getcwd()):
     return result
 
 
-def main():
+def manage_cmd():
     parser = argparse.ArgumentParser(
         description='Renames given single fb2 file using pattern.')
     parser.add_argument(
@@ -362,7 +362,11 @@ def main():
         default='',
         help='Output directory')
     args = parser.parse_args()
+    return args
 
+
+def main():
+    args = manage_cmd()
     errors = {}
     if args.out_dir and os.path.isdir(args.out_dir):
         out_dir = args.out_dir
