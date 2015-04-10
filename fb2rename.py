@@ -62,15 +62,15 @@ class Common(object):
         templates['default']        = templates['flat']
         return templates
 
-
     @staticmethod
     def get_format_patterns():
-        return ['authors', 'title', 'date', 'sequence',
+        return [
+            'authors', 'title', 'date', 'sequence',
             'seq_name', 'seq_number', 'genre', 'oldname', 'year'
             ]
 
-class XmlWrapper(object):
 
+class XmlWrapper(object):
     @staticmethod
     def get_xmlns_tag_path(a_element, a_path):
         xmlns = a_element.nsmap[None]
@@ -352,7 +352,7 @@ def manage_cmd():
         '--format', '-f', dest='format', action='store',
         help='Format of the new name. Possble values are: ' +
         ', '.join(Common.get_format_patterns()) + '.\n' +
-        'Author name could be formated with #F/M/L like #First/Middle/Last name.'
+        'Author name could be #F/M/L like #First/Middle/Last name.'
     )
     parser.add_argument(
         '--template', '-t', metavar='template', action='store',
@@ -381,7 +381,7 @@ def main():
         out_dir = os.getcwd()
     book = Book_fb2()
     templates = Common.get_templates()
-    if not args.template in templates:
+    if args.template not in templates:
         errors['template'] = 'No such template: ' + args.template
     else:
         name_format = templates[args.template]
