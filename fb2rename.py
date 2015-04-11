@@ -317,7 +317,7 @@ def format_name(a_book, _format):
     return result
 
 
-def get_files_to_work_with(a_files=[], a_types=[], a_path=[]):
+def get_files_to_work_with(a_files=[], a_types=[], a_path=[], a_recursive=False):
     if not isinstance(a_types, list):
         return []
     if not isinstance(a_path, list):
@@ -325,13 +325,35 @@ def get_files_to_work_with(a_files=[], a_types=[], a_path=[]):
     result = []
     candidates = []
     candidates.extend(a_files)
+
+    def get_files_plain(a_dir):
+        lsdir = []
+        if os.path.isdir(a_dir):
+            lsdir = os.listdir(a_dir)
+            lsdir = [os.path.join(a_dir, i) for i in lsdir]
+            lsdir = [f for f in lsdir if os.path.isfile(f)]
+        return lsdir
+
+    def get_files_recursive(a_dir):
+        lsdir = []
+        if os.path.isdir(a_dir):
+            for f in content:
+                curr_subdir_name = f[0]
+                curr_subdir_files = f[2]
+                for fc in curr_subdir_files:
+                    lsdir.append(os.path.join(p, curr_subdir_name, fc))
+        return lsdir
+
     if not candidates and not a_path:
         a_path.append(os.getcwd())
     for p in a_path:
         if os.path.isdir(p):
-            lsdir = os.listdir(p)
-            lsdir = [os.path.join(p, i) for i in lsdir]
-            lsdir = [f for f in lsdir if os.path.isfile(f)]
+            content = os.walk(p)
+            lsdir = []
+            if a_recursive:
+                lsdir = get_files_recursive(p)
+            else:
+                lsdir = get_files_plain(p)
             candidates.extend(lsdir)
     candidates = [os.path.abspath(f) for f in candidates]
     candidates = list(set(candidates))

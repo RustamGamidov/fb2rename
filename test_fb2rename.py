@@ -211,6 +211,15 @@ class GetFilesToWorkWith(unittest.TestCase):
         ref.extend(self.get_ref(dirs_to_scan, ['fb2']))
         self.assertEqual(sorted(ref), sorted(files))
 
+    def test_getFilesFromSubfolders_whenRecursiveIsTrue(self):
+        path = [self.tmpdir]
+        types = ['fb2', 'rar']
+        ref = self.get_ref([self.tmpdir], types)
+        ref.extend(self.get_ref([os.path.join(self.tmpdir, 'dir1')], types))
+        ref.extend(self.get_ref([os.path.join(self.tmpdir, 'dir2')], types))
+        files = get_files_to_work_with(get_files(os.getcwd()), types, path, True)
+        self.assertEqual(sorted(ref), sorted(files))
+
 
 if __name__ == '__main__':
     unittest.main()
