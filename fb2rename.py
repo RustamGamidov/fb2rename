@@ -387,6 +387,11 @@ def manage_cmd():
         default=False,
         help='Do not rename files. Just show new names.')
     parser.add_argument(
+        '--recursive', '-r', dest='recursive', type=bool, action='store',
+        default=False,
+        help='Scan given directories recursively.'
+    )
+    parser.add_argument(
         '-o', dest='out_dir', action='store',
         default='',
         help='Output directory')
@@ -409,7 +414,7 @@ def main():
         name_format = templates[args.template]
         if args.format:
             name_format = args.format
-        input_files = get_files_to_work_with(args.fname, ['fb2'])
+        input_files = get_files_to_work_with(args.fname, ['fb2'], recursive=args.recursive)
         for fname in input_files:
             try:
                 book.open(fname)
