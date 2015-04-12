@@ -414,7 +414,7 @@ def main():
         name_format = templates[args.template]
         if args.format:
             name_format = args.format
-        input_files = get_files_to_work_with(args.fname, ['fb2'], recursive=args.recursive)
+        input_files = get_files_to_work_with(args.fname, ['fb2'], a_recursive=args.recursive)
         for fname in input_files:
             try:
                 book.open(fname)
