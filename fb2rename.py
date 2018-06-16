@@ -145,6 +145,9 @@ class Book(object):
     def format_person_name(a_first, a_middle, a_last, a_format='#L, #F #M'):
         if not a_first and not a_last and not a_middle:
             raise Exception("There's no author")
+        if not a_first: a_first = ' '
+        if not a_middle: a_middle = ' '
+        if not a_last: a_last = ' '
         result = a_format
         result = result.replace('#L', a_last)
         result = result.replace('#l', a_last[0])
