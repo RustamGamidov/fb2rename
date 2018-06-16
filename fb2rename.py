@@ -248,7 +248,7 @@ class Book_fb2(Book):
             author = self.get_person_name(tag, author_format)
             if author is not None:
                 authors.append(author)
-        return '. '.join(authors)
+        return '; '.join(authors)
 
     def get_sequence(self):
         attrs = XmlWrapper.get_all_tag_atributes(
